@@ -51,7 +51,7 @@ def image_view(request):
                 }
             ],
             )
-            return response.choices[0]
+            return JsonResponse({'response': response.choices[0].message.content})
             # return JsonResponse({'transcription': transcription.text})
         except Exception as e:
             # エラーログを記録し、エラーメッセージを返す
