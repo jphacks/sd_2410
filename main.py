@@ -9,7 +9,7 @@ import pandas as pd
 import requests
 
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
-print(3)
+
 # 作成したもの
 import camera            # take photo
 import BrightnessChecker # check goout/inhome
@@ -19,7 +19,7 @@ import rec
 
 start = time.time()
 now = datetime.datetime.now() 
-current_time = now.strftime("%H%M")  # 現在時間取得 1713
+current_time = int(now.strftime("%H%M"))  # 現在時間取得 1713
 
 def status_csv_write(status, times, alarm, filename='status.csv'):
     # 先頭に追加する行をデータフレームで作成
@@ -59,9 +59,11 @@ elif current_status == 'A' and times > 0 and current_alarm <= current_time:
     ##### I/O 画像/okita(true/false)               ######
     ##### 画像を読み込んで起きてるか判断するpython実行   ######
     ####################################################
-    okita == true
+    url = "http://127.0.0.1:8000/api/image_openai/"
+    response = requests.post(url)
+    okita == response.json()['awake'] # 起きてたら1/寝てたら0
     
-    if(not okita):
+    if(okita == "0"):
         print("まだ寝てると判断")
         # 起きてなければ以下を実行
         subprocess.run("echo 'on 0' | cec-client -s", shell=True, stdout=subprocess.DEVNULL)
@@ -75,7 +77,7 @@ elif current_status == 'A' and times > 0 and current_alarm <= current_time:
         times += 1
         status_csv_write("A", times, current_alarm +5)
 
-    elif(okita):
+    elif(okita == "1"):
         print("起きたと判断")
         status_csv_write("B", 1, 9999) # 起きたのでcsv書き換え
 
@@ -112,6 +114,8 @@ elif current_status == 'B' and times == 2 and current_alarm == 9999:
         response_line = response.json()['response'] # 喋るセリフ
         set_alarm = int(response.json()['time']) # 起床時間
         status_csv_write("B", 3, set_alarm)
+
+        time.sleep(10)
 
         subprocess.run("echo 'standby 0' | cec-client -s", shell=True, stdout=subprocess.DEVNULL)
         print("TV standby")

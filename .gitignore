@@ -7,3 +7,6 @@ Django/myproject/
 photo.jpg
 status.csv
 audio/voice.wav
+Django/myapp/__pycache__/
+Django/myapp/views/__pycache__/
+Django/myapp/migrations/__pycache__/

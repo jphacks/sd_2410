@@ -38,7 +38,7 @@ def image_view(request):
             # mp3file = data.get("filepath")
             # audio_file= open(mp3file, "rb")
             # transcription = client.audio.transcriptions.create(model="whisper-1", file=audio_file)
-            image_path = os.path.join(os.path.dirname(settings.BASE_DIR), "audio", "image3.jpg")
+            image_path = os.path.join(os.path.dirname(settings.BASE_DIR), "photo.jpg")
             # Getting the base64 string
             base64_image = encode_image(image_path)
             response = client.chat.completions.create(
