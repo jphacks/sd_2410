@@ -8,8 +8,7 @@ import subprocess
 import pandas as pd
 import requests
 
-base_path = "/home/izumi/Desktop/git/sd_2410/"
-os.chdir(base_path)
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 # 作成したもの
 import camera            # take photo
@@ -63,6 +62,7 @@ elif current_status == 'A' and times > 0 and current_alarm <= current_time:
     okita == true
     
     if(not okita):
+        print("まだ寝てると判断")
         # 起きてなければ以下を実行
         subprocess.run("echo 'on 0' | cec-client -s", shell=True, stdout=subprocess.DEVNULL)
         print("TV on")
@@ -76,6 +76,7 @@ elif current_status == 'A' and times > 0 and current_alarm <= current_time:
         status_csv_write("A", times, current_alarm +5)
 
     elif(okita):
+        print("起きたと判断")
         status_csv_write("B", 1, 9999) # 起きたのでcsv書き換え
 
         ####################################################
@@ -108,12 +109,14 @@ elif current_status == 'B' and times == 2 and current_alarm == 9999:
         url = "http://127.0.0.1:8000/api/mp3_openai/"
         response = requests.post(url)
         
-        response_line = int(response.json()['response'])
-        set_alarm = int(response.json()['time'])
+        response_line = int(response.json()['response']) # 喋るセリフ
+        set_alarm = int(response.json()['time']) # 起床時間
         status_csv_write("B", 3, set_alarm)
 
         subprocess.run("echo 'standby 0' | cec-client -s", shell=True, stdout=subprocess.DEVNULL)
         print("TV standby")
+    elif:
+        print("外出中")
 
 # 日付またぎ(アラーム時間と現在時間を大小比較するため)
 elif current_status == 'B' and times == 3 and current_alarm == 9999:
