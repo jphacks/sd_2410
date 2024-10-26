@@ -5,7 +5,8 @@ def getString_socket():
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     # バインドするアドレスとポート
-    host = socket.gethostbyname(socket.gethostname())  # localhost
+    # host = socket.gethostbyname(socket.gethostname())  # localhost
+    host = "0.0.0.0"
     port = 65432
     server_socket.bind((host, port))
 
