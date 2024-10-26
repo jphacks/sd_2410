@@ -5,7 +5,7 @@ def getString_socket():
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     # バインドするアドレスとポート
-    host = '10.0.0.196'  # localhost
+    host = socket.gethostbyname(socket.gethostname())  # localhost
     port = 65432
     server_socket.bind((host, port))
 
@@ -21,9 +21,10 @@ def getString_socket():
     data = client_socket.recv(1024)
     print(f"受信したデータ: {data.decode('utf-8')}")
 
+    # ソケットを閉じる
+    client_socket.close()
+    server_socket.close()
+    
     return data.decode('utf-8')
 
-
-# ソケットを閉じる
-# client_socket.close()
-# server_socket.close()
+getString_socket()
