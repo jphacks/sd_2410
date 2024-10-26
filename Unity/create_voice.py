@@ -2,12 +2,18 @@ import requests
 import json
 import time
 
-from audio.register_time import register_time
+import sys
+import os
+
+# 親ディレクトリをPythonのパスに追加
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
+from sd_2410.audio.register_time import register_and_responce
+
 # ずんだもんの話者ID
 speaker_id = 3
 
 #ここにLLMからの応答データを入れる
-text = register_time("6時43分に起こして")
+text = register_and_responce("6時43分に起こして")
 
 # 音声合成用クエリを作成
 query_payload = {'text': text, 'speaker': speaker_id}
