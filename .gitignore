@@ -5,5 +5,5 @@ Django/myapp/
 Django/myproject/
 .env
 photo.jpg
-audio/voice.wav
 status.csv
+audio/voice.wav
