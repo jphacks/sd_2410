@@ -28,4 +28,4 @@ def getString_socket():
     
     return data.decode('utf-8')
 
-getString_socket()
+#getString_socket()
