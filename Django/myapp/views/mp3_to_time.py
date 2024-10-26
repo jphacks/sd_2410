@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from openai import OpenAI
+import openai
 from django.http import JsonResponse
 from django.conf import settings
 import json
@@ -27,7 +28,7 @@ def mp3_to_time(request):
     if request.method == 'POST':
         try:
 
-            file_path = os.path.join(os.path.dirname(settings.BASE_DIR), "audio", "audio_test.m4a")
+            file_path = os.path.join(os.path.dirname(settings.BASE_DIR), "audio", "voice.wav")
 
             audio_file= open(file_path, "rb")
             transcription = client.audio.transcriptions.create(model="whisper-1", file=audio_file)
@@ -39,7 +40,17 @@ def mp3_to_time(request):
                     {"role": "user", "content": transcription.text}
                 ]
             )
-            return JsonResponse({'time': response.choices[0].message.content})
+            
+            follow_up_response = openai.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content":"起床時間の登録が完了しました"},
+                {"role": "user", "content": transcription.text + "のだ口調で応答して"}
+            ]
+            )
+
+            return JsonResponse({'time': response.choices[0].message.content,
+                                'response' : follow_up_response.choices[0].message.content})
 
         except Exception as e:
             # エラーログを記録し、エラーメッセージを返す
