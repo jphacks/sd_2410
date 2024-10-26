@@ -25,7 +25,7 @@ function_description={
                     "description": """Unity上で実行されるアニメーションID {嬉しい:grad, 悲しい:sad, 怒り:angry}"""
                 }
             },
-        "required": ["city"]
+        "required": ["anim_id"]
     }
 }
 

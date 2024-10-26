@@ -9,7 +9,7 @@ openai.api_key = OPEN_AI_API
 
 #仮の関数
 def register_time(time:str):
-    with open("time.txt", "wb") as f:
+    with open("time.txt", "w") as f:
         f.write(time)
     return
 
@@ -23,10 +23,7 @@ function_description={
             "properties": {
                 "morning_time": {
                     "type": "string",
-                    "description": """起きる時間を数字４文字で出力。
-                    ### 入力例
-                    - 入力:６時半に起こして
-                    - 出力:0630"""
+                    "description": "起きる時間を数字４文字で出力。例:- 入力:６時半に起こして- 出力:0630"
                 }
             },
         "required": ["morning_time"]
