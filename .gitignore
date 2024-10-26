@@ -3,3 +3,4 @@ __pycache__/
 Django/myapp/__pycache__/
 Django/myapp/
 Django/myproject/
+.env
