@@ -2,19 +2,21 @@ import requests
 import json
 import time
 
+
 import sys
 import os
 
 # 親ディレクトリをPythonのパスに追加
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
-from sd_2410.audio.register_time import register_and_responce
+# from sd_2410.audio.register_time import register_and_responce
+from socketServer import getString_socket
 
 # ずんだもんの話者ID
 speaker_id = 3
 
 #ここにLLMからの応答データを入れる
-text = register_and_responce("6時43分に起こして")
-print(text)
+text = getString_socket()
+
 # 音声合成用クエリを作成
 query_payload = {'text': text, 'speaker': speaker_id}
 query_res = requests.post("http://127.0.0.1:50021/audio_query", params=query_payload)
