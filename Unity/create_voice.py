@@ -14,13 +14,8 @@ from sd_2410.audio.register_time import register_and_responce
 speaker_id = 3
 
 #ここにLLMからの応答データを入れる
-<<<<<<< HEAD
 text = getString_socket()
 
-=======
-text = register_and_responce("6時43分に起こして")
-print(text)
->>>>>>> 9f42f37e5a60c8d056f706204d529ca70c3b60b1
 # 音声合成用クエリを作成
 query_payload = {'text': text, 'speaker': speaker_id}
 query_res = requests.post("http://127.0.0.1:50021/audio_query", params=query_payload)
