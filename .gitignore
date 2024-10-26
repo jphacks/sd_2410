@@ -1,3 +1,14 @@
 jphacks_env/
 __pycache__/
 Django/myapp/__pycache__/
+Django/myapp/__pycache__/__init__.cpython-311.pyc
+Django/myapp/__pycache__/__init__.cpython-311.pyc
+Django/myapp/__pycache__/admin.cpython-311.pyc
+Django/myapp/__pycache__/apps.cpython-311.pyc
+Django/myapp/__pycache__/models.cpython-311.pyc
+Django/myapp/__pycache__/urls.cpython-311.pyc
+Django/myapp/views/__pycache__/okaeri.cpython-311.pyc
+Django/myapp/views/__pycache__/views.cpython-311.pyc
+Django/myproject/__pycache__/__init__.cpython-311.pyc
+Django/myproject/__pycache__/settings.cpython-311.pyc
+Django/myproject/__pycache__/urls.cpython-311.pyc
