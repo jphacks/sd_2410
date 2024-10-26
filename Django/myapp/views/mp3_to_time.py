@@ -7,20 +7,40 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 import logging
+import os
 
 logger = logging.getLogger('myapp')
 OPENAI_API_KEY = settings.OPENAI_API_KEY
 client = OpenAI(api_key=OPENAI_API_KEY)
 
+description_message = {
+    "role": "system",
+    "content": (
+        "以下のフォーマットで時間を入力してください。\n"
+        "- morning_time (string): "
+        "起きる時間を4桁の数字で出力してください。例: 0630 （6時30分に起きる場合）"
+    )
+}
+
 @api_view(['POST'])
-def mp3_view(request):
+def mp3_to_time(request):
     if request.method == 'POST':
         try:
-            data = request.data
-            mp3file = data.get("filepath")
-            audio_file= open(mp3file, "rb")
+
+            file_path = os.path.join(os.path.dirname(settings.BASE_DIR), "audio", "audio_test.m4a")
+
+            audio_file= open(file_path, "rb")
             transcription = client.audio.transcriptions.create(model="whisper-1", file=audio_file)
-            return JsonResponse({'transcription': transcription.text})
+            # return JsonResponse({'transcription': transcription.text})
+            response = client.chat.completions.create(
+                model="gpt-4",
+                messages=[
+                    description_message,
+                    {"role": "user", "content": transcription.text}
+                ]
+            )
+            return JsonResponse({'time': response.choices[0].message.content})
+
         except Exception as e:
             # エラーログを記録し、エラーメッセージを返す
             logger.error(f"Error transcribing audio: {str(e)}")
