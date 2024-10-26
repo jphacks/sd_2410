@@ -14,7 +14,7 @@ speaker_id = 3
 
 #ここにLLMからの応答データを入れる
 text = register_and_responce("6時43分に起こして")
-
+print(text)
 # 音声合成用クエリを作成
 query_payload = {'text': text, 'speaker': speaker_id}
 query_res = requests.post("http://127.0.0.1:50021/audio_query", params=query_payload)
@@ -38,7 +38,11 @@ synthesis_res = requests.post(
 synthesis_res.raise_for_status()
 
 # 音声ファイルを保存して再生
-with open("sd_2410/Unity/Assets/zundamon_voice.wav", "wb") as f:
+with open("sd_2410/Unity/Assets/resouce/zundamon_voice.wav", "wb") as f:
     f.write(synthesis_res.content)
 
-print("音声ファイルが生成されました！")
+# 文字ファイルを保存
+with open("sd_2410/Unity/Assets/resouce/responce.txt", "w") as f:
+    f.write(text)
+
+print("音声・文字ファイルが生成されました！")

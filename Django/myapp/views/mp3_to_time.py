@@ -18,7 +18,7 @@ description_message = {
     "role": "system",
     "content": (
         "以下のフォーマットで時間を入力してください。\n"
-        "- morning_time (string): "
+        "6030"
         "起きる時間を4桁の数字で出力してください。例: 0630 （6時30分に起きる場合）"
     )
 }
@@ -40,6 +40,7 @@ def mp3_to_time(request):
                     {"role": "user", "content": transcription.text}
                 ]
             )
+
             
             follow_up_response = openai.chat.completions.create(
             model="gpt-4o-mini",
@@ -51,6 +52,7 @@ def mp3_to_time(request):
 
             return JsonResponse({'time': response.choices[0].message.content,
                                 'response' : follow_up_response.choices[0].message.content})
+
 
         except Exception as e:
             # エラーログを記録し、エラーメッセージを返す
