@@ -1,12 +1,13 @@
 import requests
 import json
 import time
+from .socketServer import getString_socket
 
 # ずんだもんの話者ID
 speaker_id = 3
 
 #ここにLLMからの応答データを入れる
-text = """わかったのだ！明日の朝６時に起こすのだ"""
+text = getString_socket()
 
 # 音声合成用クエリを作成
 query_payload = {'text': text, 'speaker': speaker_id}
