@@ -9,7 +9,7 @@ import pandas as pd
 import requests
 
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
-
+print(3)
 # 作成したもの
 import camera            # take photo
 import BrightnessChecker # check goout/inhome
