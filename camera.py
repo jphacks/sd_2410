@@ -3,8 +3,7 @@ import numpy as np
 import os
 import subprocess
 
-base_path = "/home/izumi/Desktop/rasp_models/"
-os.chdir(base_path)
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 def take_photo():
   # 一時ファイルに画像を保存せずに取得するためのコマンド

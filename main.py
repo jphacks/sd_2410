@@ -101,7 +101,7 @@ elif current_status == 'B' and times == 2 and current_alarm == 9999:
         print("TV on")
 
 
-        # rec.recording()
+        rec.recording()
         ####################################################
         ##### I/O なし/実行終了      ######
         ##### 起床時間設定プログラム起動  ######
@@ -109,13 +109,13 @@ elif current_status == 'B' and times == 2 and current_alarm == 9999:
         url = "http://127.0.0.1:8000/api/mp3_openai/"
         response = requests.post(url)
         
-        response_line = int(response.json()['response']) # 喋るセリフ
+        response_line = response.json()['response'] # 喋るセリフ
         set_alarm = int(response.json()['time']) # 起床時間
         status_csv_write("B", 3, set_alarm)
 
         subprocess.run("echo 'standby 0' | cec-client -s", shell=True, stdout=subprocess.DEVNULL)
         print("TV standby")
-    elif:
+    else:
         print("外出中")
 
 # 日付またぎ(アラーム時間と現在時間を大小比較するため)
