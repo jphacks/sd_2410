@@ -5,8 +5,9 @@ import os
 # sudo apt install portaudio19-dev
 # pip isntall pyaudio
 
-base_path = "/home/izumi/Desktop/git/sd_2410/"
-os.chdir(base_path)
+# base_path = "/home/izumi/Desktop/git/sd_2410/"
+# os.chdir(base_path)
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 def recording(
     output_filename="audio/voice.wav",

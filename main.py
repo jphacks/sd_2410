@@ -61,7 +61,10 @@ elif current_status == 'A' and times > 0 and current_alarm <= current_time:
     ####################################################
     url = "http://127.0.0.1:8000/api/image_openai/"
     response = requests.post(url)
+    print("response", response.json())
+    okita = 0 # 初期化
     okita == response.json()['awake'] # 起きてたら1/寝てたら0
+    print("okita", okita)
     
     if(okita == "0"):
         print("まだ寝てると判断")
