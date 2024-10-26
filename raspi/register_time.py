@@ -30,12 +30,14 @@ function_description={
     }
 }
 
+#文字起こしされた文章
+mojiokoshi = "8時29分に起こして"
 
 response = openai.chat.completions.create(
   model="gpt-4o-mini",
   messages=[
         {"role": "system", "content": "明日の朝起きる時間を登録します"},
-        {"role": "user", "content": "8時29分に起こして"}
+        {"role": "user", "content": mojiokoshi}
     ],
   functions=[function_description],
   function_call={"name":"register_time"}
@@ -51,14 +53,13 @@ if message.function_call.name == "register_time":
     args = json.loads(message.function_call.arguments)
     result = register_time(args["morning_time"])
 
-    # # 関数の結果をChatGPTに送信して応答を作成
-    # follow_up_response = openai.ChatCompletion.create(
-    #     model="gpt-4o-mini",
-    #     messages=[
-    #         {"role": "user", "content": "東京の天気を教えてください。"},
-    #         message,
-    #         {"role": "function", "name": "get_weather", "content": json.dumps(result)}
-    #     ]
-    # )
+    # 関数の結果をChatGPTに送信して応答を作成
+    follow_up_response = openai.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[
+            {"role": "system", "content":"起床時間の登録が完了しました"},
+            {"role": "user", "content": mojiokoshi + "のだ口調で応答して"}
+        ]
+    )
 
-    # print(follow_up_response["choices"][0]["message"]["content"])
+    print(follow_up_response.choices[0].message.content)
