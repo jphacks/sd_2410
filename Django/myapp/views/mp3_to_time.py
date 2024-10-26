@@ -17,7 +17,7 @@ description_message = {
     "role": "system",
     "content": (
         "以下のフォーマットで時間を入力してください。\n"
-        "- morning_time (string): "
+        "6030"
         "起きる時間を4桁の数字で出力してください。例: 0630 （6時30分に起きる場合）"
     )
 }
@@ -27,7 +27,7 @@ def mp3_to_time(request):
     if request.method == 'POST':
         try:
 
-            file_path = os.path.join(os.path.dirname(settings.BASE_DIR), "audio", "audio_test.m4a")
+            file_path = os.path.join(os.path.dirname(settings.BASE_DIR), "audio", "voice.wav")
 
             audio_file= open(file_path, "rb")
             transcription = client.audio.transcriptions.create(model="whisper-1", file=audio_file)
@@ -39,7 +39,7 @@ def mp3_to_time(request):
                     {"role": "user", "content": transcription.text}
                 ]
             )
-            return JsonResponse({'time': response.choices[0].message.content})
+            return Response(response.choices[0].message.content)
 
         except Exception as e:
             # エラーログを記録し、エラーメッセージを返す
