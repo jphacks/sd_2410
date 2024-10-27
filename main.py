@@ -10,6 +10,10 @@ import requests
 
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
+subprocess.run("echo 'on 0' | cec-client -s", shell=True, stdout=subprocess.DEVNULL)
+print("TV on")
+
+
 # 作成したもの
 import camera            # take photo
 import BrightnessChecker # check goout/inhome
@@ -19,10 +23,6 @@ from my_socket import socket_com # ソケット通信
 start = time.time()
 now = datetime.datetime.now() 
 current_time = int(now.strftime("%H%M"))  # 現在時間取得 1713
-
-
-subprocess.run("echo 'on 0' | cec-client -s", shell=True, stdout=subprocess.DEVNULL)
-print("TV on")
 
 
 def status_csv_write(status, times, alarm, filename='status.csv'):
@@ -117,9 +117,9 @@ elif current_status == 'B' and times == 2 and current_alarm == 9999:
         # true -> in home
         # subprocess.run("echo 'on 0' | cec-client -s", shell=True, stdout=subprocess.DEVNULL)
         # print("TV on")
-        time.sleep(1) # テレビつくのを待つ
+        time.sleep(0.5) # テレビつくのを待つ
 
-        socket_com.start_client_sendString("おかえりなのだ。明日何時起きるのか教えるのだ。") # サーバー接続して文字送信
+        socket_com.start_client_sendString("おかえり、明日は何時に起こせばいいんだ？") # サーバー接続して文字送信
         ####################################################
         ##### 起床時間質問Unity  ######
         ####################################################
@@ -130,7 +130,7 @@ elif current_status == 'B' and times == 2 and current_alarm == 9999:
         response = requests.post(url)
         
         set_alarm = int(response.json()['time']) # 起床時間
-        status_csv_write("B", 3, set_alarm)
+        # status_csv_write("B", 3, set_alarm)
         response_line = response.json()['response'] # 喋るセリフ
 
         socket_com.start_client_sendString(response_line) # サーバー接続して文字送信
