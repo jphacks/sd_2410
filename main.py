@@ -14,10 +14,8 @@ os.chdir(os.path.dirname(os.path.abspath(__file__)))
 # 作成したもの
 import camera            # take photo
 import BrightnessChecker # check goout/inhome
-# import openai            # 未設定
 import rec              # record get up time
-from my_socket import socket_com
-
+from my_socket import socket_com # ソケット通信
 
 start = time.time()
 now = datetime.datetime.now() 
@@ -68,10 +66,10 @@ elif current_status == 'A' and times >= 0 and current_alarm <= current_time:
 
     if(okita == "0"):
         print("まだ寝てると判断")
-        # 起きてなければ以下を実行
         subprocess.run("echo 'on 0' | cec-client -s", shell=True, stdout=subprocess.DEVNULL)
         print("TV on")
 
+        socket_com.start_client_sendString() # サーバー接続して文字送信
         ####################################################
         ##### 起こすずんだもん起動   ######
         ####################################################
@@ -87,11 +85,12 @@ elif current_status == 'A' and times >= 0 and current_alarm <= current_time:
         print("起きたと判断")
         status_csv_write("B", 1, 9999) # 起きたのでcsv書き換え
 
+        socket_com.start_client_sendString() # サーバー接続して文字送信
         ####################################################
         ##### I/O なし/実行終了合図      ######
         ##### うんちくずんだもん起動      ######
         ####################################################
-
+        socket_com.start_server_getString() # サーバー立てて文字取得まで待機
         subprocess.run("echo 'standby 0' | cec-client -s", shell=True, stdout=subprocess.DEVNULL)
         print("TV off")
 
@@ -108,21 +107,26 @@ elif current_status == 'B' and times == 2 and current_alarm == 9999:
         subprocess.run("echo 'on 0' | cec-client -s", shell=True, stdout=subprocess.DEVNULL)
         print("TV on")
 
-        rec.recording()
+        socket_com.start_client_sendString() # サーバー接続して文字送信
         ####################################################
-        ##### 起床時間設定プログラム起動  ######
+        ##### 起床時間質問  ######
         ####################################################
+        socket_com.start_server_getString() # サーバー立てて文字取得まで待機
+        rec.recording()                     # recordingスタート
+
         url = "http://127.0.0.1:8000/api/mp3_openai/"
         response = requests.post(url)
-        
-        response_line = response.json()['response'] # 喋るセリフ
-        socket_com.start_client_sendString(response_line) # 接続して、text送信
         
         set_alarm = int(response.json()['time']) # 起床時間
         status_csv_write("B", 3, set_alarm)
 
-        time.sleep(10)
+        response_line = response.json()['response'] # 喋るセリフ
+        socket_com.start_client_sendString(response_line) # サーバー接続して文字送信
+        ####################################################
+        ##### 起床時間確認  ######
+        ####################################################
 
+        socket_com.start_server_getString() # サーバー立てて文字取得まで待機
         subprocess.run("echo 'standby 0' | cec-client -s", shell=True, stdout=subprocess.DEVNULL)
         print("TV standby")
     else:
