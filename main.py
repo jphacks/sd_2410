@@ -16,6 +16,7 @@ import camera            # take photo
 import BrightnessChecker # check goout/inhome
 # import openai            # 未設定
 import rec              # record get up time
+from my_socket import socket_com
 
 
 start = time.time()
@@ -61,7 +62,7 @@ elif current_status == 'A' and times >= 0 and current_alarm <= current_time:
     ##########################################
     url = "http://127.0.0.1:8000/api/image_openai/"
     response = requests.post(url)
-    print("response", response.json()) # Debug
+    # print("response", response.json()) # Debug
     okita = response.json().split(": ")[1].strip(" \n}")
     print("\n起きた:1 寝てる:0 →", okita)  # 起きてた：1/寝てた：0
 
@@ -74,6 +75,9 @@ elif current_status == 'A' and times >= 0 and current_alarm <= current_time:
         ####################################################
         ##### 起こすずんだもん起動   ######
         ####################################################
+        socket_com.start_server_getString() # サーバー立てて文字取得まで待機
+        subprocess.run("echo 'standby 0' | cec-client -s", shell=True, stdout=subprocess.DEVNULL)
+        print("TV off")
 
         # csv書き換え
         times += 1
@@ -104,16 +108,16 @@ elif current_status == 'B' and times == 2 and current_alarm == 9999:
         subprocess.run("echo 'on 0' | cec-client -s", shell=True, stdout=subprocess.DEVNULL)
         print("TV on")
 
-
         rec.recording()
         ####################################################
-        ##### I/O なし/実行終了      ######
         ##### 起床時間設定プログラム起動  ######
         ####################################################
         url = "http://127.0.0.1:8000/api/mp3_openai/"
         response = requests.post(url)
         
         response_line = response.json()['response'] # 喋るセリフ
+        socket_com.start_client_sendString(response_line) # 接続して、text送信
+        
         set_alarm = int(response.json()['time']) # 起床時間
         status_csv_write("B", 3, set_alarm)
 
