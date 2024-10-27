@@ -53,8 +53,6 @@ if current_status == 'A' and times == 0 and current_alarm > current_time:
 
 # 起床すべき時間
 elif current_status == 'A' and times >= 0 and current_alarm <= current_time:
-    # 起床時刻と判断
-
     okita = "0" # 初期化
     camera.take_photo() # take photo
 
@@ -63,8 +61,9 @@ elif current_status == 'A' and times >= 0 and current_alarm <= current_time:
     ##########################################
     url = "http://127.0.0.1:8000/api/image_openai/"
     response = requests.post(url)
-    okita = response.json().split(": ")[1]
-    print("\n起きた:1 寝てる:0 ", okita)  # 起きてた：1/寝てた：0
+    print("response", response.json()) # Debug
+    okita = response.json().split(": ")[1].strip(" \n}")
+    print("\n起きた:1 寝てる:0 →", okita)  # 起きてた：1/寝てた：0
 
     if(okita == "0"):
         print("まだ寝てると判断")
@@ -78,7 +77,7 @@ elif current_status == 'A' and times >= 0 and current_alarm <= current_time:
 
         # csv書き換え
         times += 1
-        status_csv_write("A", times, current_alarm +5)
+        status_csv_write("A", times, current_time +5)
 
     elif(okita == "1"):
         print("起きたと判断")
@@ -86,7 +85,7 @@ elif current_status == 'A' and times >= 0 and current_alarm <= current_time:
 
         ####################################################
         ##### I/O なし/実行終了合図      ######
-        ##### うんちくずんだもん起動   ######
+        ##### うんちくずんだもん起動      ######
         ####################################################
 
         subprocess.run("echo 'standby 0' | cec-client -s", shell=True, stdout=subprocess.DEVNULL)
