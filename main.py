@@ -7,6 +7,7 @@ import os
 import subprocess
 import pandas as pd
 import requests
+import json
 
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
@@ -14,7 +15,7 @@ os.chdir(os.path.dirname(os.path.abspath(__file__)))
 import camera            # take photo
 import BrightnessChecker # check goout/inhome
 # import openai            # 未設定
-import rec
+import rec              # record get up time
 
 
 start = time.time()
@@ -48,24 +49,23 @@ current_status, times, current_alarm = status_csv_read()
 
 # 起床前
 if current_status == 'A' and times == 0 and current_alarm > current_time:
-     print("就寝中")
+    print("就寝中")
 
 # 起床すべき時間
-elif current_status == 'A' and times > 0 and current_alarm <= current_time:
+elif current_status == 'A' and times >= 0 and current_alarm <= current_time:
     # 起床時刻と判断
 
+    okita = "0" # 初期化
     camera.take_photo() # take photo
-    ####################################################
-    ##### I/O 画像/okita(true/false)               ######
-    ##### 画像を読み込んで起きてるか判断するpython実行   ######
-    ####################################################
+
+    ###########################################
+    #####   画像を読み込んで起きてるか判断   ######
+    ##########################################
     url = "http://127.0.0.1:8000/api/image_openai/"
     response = requests.post(url)
-    print("response", response.json())
-    okita = 0 # 初期化
-    okita == response.json()['awake'] # 起きてたら1/寝てたら0
-    print("okita", okita)
-    
+    okita = response.json().split(": ")[1]
+    print("\n起きた:1 寝てる:0 ", okita)  # 起きてた：1/寝てた：0
+
     if(okita == "0"):
         print("まだ寝てると判断")
         # 起きてなければ以下を実行
