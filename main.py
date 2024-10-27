@@ -86,7 +86,7 @@ elif current_status == 'A' and times >= 0 and current_alarm <= current_time:
         print("起きたと判断")
         status_csv_write("B", 1, 9999) # 起きたのでcsv書き換え
 
-        socket_com.start_client_sendString() # サーバー接続して文字送信
+        socket_com.start_client_sendString("今日8月20日はずんだ餅の日なのだ") # サーバー接続して文字送信
         ####################################################
         ##### I/O なし/実行終了合図      ######
         ##### うんちくずんだもん起動      ######
@@ -110,12 +110,11 @@ elif current_status == 'B' and times == 2 and current_alarm == 9999:
         print("TV on")
         time.sleep(5) # テレビつくのを待つ
 
-        socket_com.start_client_sendString("おい、明日何時に起きるのか早く決めるのだ") # サーバー接続して文字送信
+        socket_com.start_client_sendString("おかえりなのだ。明日何時起きるのか教えるのだ") # サーバー接続して文字送信
         ####################################################
         ##### 起床時間質問Unity  ######
         ####################################################
-        # socket_com.start_server_getString() # サーバー立てて文字取得まで待機
-        time.sleep(5)
+        socket_com.start_server_getString(65432) # サーバー立てて文字取得まで待機
 
         rec.recording()                     # recordingスタート
         url = "http://127.0.0.1:8000/api/mp3_openai/"
@@ -129,7 +128,7 @@ elif current_status == 'B' and times == 2 and current_alarm == 9999:
         ####################################################
         ##### 起床時間確認Unity  ######
         ####################################################
-        socket_com.start_server_getString() # サーバー立てて文字取得まで待機
+        socket_com.start_server_getString(65431) # サーバー立てて文字取得まで待機
 
         subprocess.run("echo 'standby 0' | cec-client -s", shell=True, stdout=subprocess.DEVNULL)
         print("TV standby")

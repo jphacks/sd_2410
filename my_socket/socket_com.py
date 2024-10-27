@@ -3,10 +3,10 @@ import threading
 # import my_config
 
 # サーバーを立てて、テキスト取得したらサーバー閉じる
-def start_server_getString():
+def start_server_getString(port):
 # def start_server_getString(host=my_config.SERVER_PC_IP, port=my_config.PORT):
     server_socket = socket.socket(socket.AF_INET, socket.SO_VM_SOCKETS_BUFFER_MIN_SIZE)
-    server_socket.bind(("0.0.0.0", 65432))
+    server_socket.bind(("0.0.0.0", port))
     server_socket.listen()
     print("Server started, waiting for connections...")
 
