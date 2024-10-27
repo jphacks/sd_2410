@@ -24,7 +24,7 @@ print(response.json())
 # ソケットを作成
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 # サーバーに接続
-host = socket.gethostbyname(socket.gethostname())  # サーバーのIPアドレス
+host = "10.0.0.192"  # サーバーのIPアドレス
 port = 65432
 client_socket.connect((host, port))
 # 送信する文字列
