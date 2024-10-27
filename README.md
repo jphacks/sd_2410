@@ -1,6 +1,8 @@
 # Wake Make
-
+## イメージ図
 [![IMAGE ALT TEXT HERE](image/joyman.png)]()
+## 構成図
+[![IMAGE ALT TEXT HERE](image/architecture.png)]()
 
 ## 製品概要
 ### 背景(製品開発のきっかけ、課題等）
