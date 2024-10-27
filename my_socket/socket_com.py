@@ -1,5 +1,6 @@
 import socket
 import threading
+import time
 # import my_config
 
 # サーバーを立てて、テキスト取得したらサーバー閉じる
@@ -23,6 +24,7 @@ def start_server_getString(port):
     print(f"受信したデータ: {data.decode('utf-8')}")
 
     # ソケットを閉じる
+    time.sleep(0.5)
     server_socket.close()
 
     return data.decode('utf-8')
