@@ -97,3 +97,6 @@
 - 自動で録音終了する rec.py
 - scoket通信により、サーバーにテキストを送ることをトリガーとし自動でアバターに話させる機能
 - LLM に特定の型で回答させるためのプロンプト技術
+- LLM とアバターを連携し、VR / AR環境で表示
+　- https://youtu.be/Ci02pe3ARAg
+　- https://youtube.com/shorts/Nwh4mZ2vYMM?feature=share
