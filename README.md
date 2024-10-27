@@ -1,4 +1,4 @@
-# Wake Make
+# Wake Mate
 
 ## イメージ図
 
