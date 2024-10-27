@@ -110,7 +110,7 @@ elif current_status == 'B' and times == 2 and current_alarm == 9999:
         print("TV on")
         time.sleep(5) # テレビつくのを待つ
 
-        socket_com.start_client_sendString("おかえりなのだ。明日何時起きるのか教えるのだ。明日は朝活するんか？") # サーバー接続して文字送信
+        socket_com.start_client_sendString("おかえりなのだ。明日何時起きるのか教えるのだ。") # サーバー接続して文字送信
         ####################################################
         ##### 起床時間質問Unity  ######
         ####################################################
