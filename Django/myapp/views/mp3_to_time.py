@@ -46,7 +46,7 @@ def mp3_to_time(request):
             model="gpt-4o-mini",
             messages=[
                 {"role": "system", "content":"起床時間の登録が完了しました"},
-                {"role": "user", "content": transcription.text + "のだ口調で応答して"}
+                {"role": "user", "content": transcription.text + "お父さん口調で応答して。ただし40文字以内で回答してください。"}
             ]
             )
 

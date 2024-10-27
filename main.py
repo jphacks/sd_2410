@@ -20,6 +20,11 @@ start = time.time()
 now = datetime.datetime.now() 
 current_time = int(now.strftime("%H%M"))  # 現在時間取得 1713
 
+
+subprocess.run("echo 'on 0' | cec-client -s", shell=True, stdout=subprocess.DEVNULL)
+print("TV on")
+
+
 def status_csv_write(status, times, alarm, filename='status.csv'):
     # 先頭に追加する行をデータフレームで作成
     new_row = pd.DataFrame([[status, times, alarm]], columns=['status', 'times', 'alarm'])
@@ -84,6 +89,9 @@ elif current_status == 'A' and times >= 0 and current_alarm <= current_time:
 
     elif(okita == "1"):
         print("起きたと判断")
+        subprocess.run("echo 'on 0' | cec-client -s", shell=True, stdout=subprocess.DEVNULL)
+        print("TV on")
+
         status_csv_write("B", 1, 9999) # 起きたのでcsv書き換え
 
         socket_com.start_client_sendString("今日8月20日はずんだ餅の日なのだ") # サーバー接続して文字送信
@@ -102,13 +110,14 @@ elif current_status == 'A' and times >= 0 and current_alarm <= current_time:
 # 外出中
 elif current_status == 'B' and times == 2 and current_alarm == 9999:
 
-    camera.take_photo() # take photo
+    # camera.take_photo() # take photo
     # check goout/inhome
-    if BrightnessChecker.homeChecker():
+    # if BrightnessChecker.homeChecker():
+    if True:
         # true -> in home
-        subprocess.run("echo 'on 0' | cec-client -s", shell=True, stdout=subprocess.DEVNULL)
-        print("TV on")
-        time.sleep(5) # テレビつくのを待つ
+        # subprocess.run("echo 'on 0' | cec-client -s", shell=True, stdout=subprocess.DEVNULL)
+        # print("TV on")
+        time.sleep(1) # テレビつくのを待つ
 
         socket_com.start_client_sendString("おかえりなのだ。明日何時起きるのか教えるのだ。") # サーバー接続して文字送信
         ####################################################
