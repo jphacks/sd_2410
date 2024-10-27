@@ -1,6 +1,6 @@
 # Wake Make
 
-[![IMAGE ALT TEXT HERE](image/スクリーンショット 2024-10-27 112141.png)]()
+[![IMAGE ALT TEXT HERE](image/joyman.png)]()
 
 ## 製品概要
 ### 背景(製品開発のきっかけ、課題等）
