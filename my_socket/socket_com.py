@@ -28,7 +28,7 @@ def start_server_getString():
     return data.decode('utf-8')
 
 # クライアント接続して、文字を送って接続解除
-def start_client_sendString(message, host="10.0.0.196", port=65432):
+def start_client_sendString(message, host="10.0.0.192", port=65432):
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     client_socket.connect((host, port))
     client_socket.sendall(message.encode('utf-8'))

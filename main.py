@@ -106,12 +106,14 @@ elif current_status == 'B' and times == 2 and current_alarm == 9999:
         # true -> in home
         subprocess.run("echo 'on 0' | cec-client -s", shell=True, stdout=subprocess.DEVNULL)
         print("TV on")
+        time.sleep(5)
 
-        socket_com.start_client_sendString() # サーバー接続して文字送信
+        socket_com.start_client_sendString("明日何時起きるのか早く決めるのだ") # サーバー接続して文字送信
         ####################################################
         ##### 起床時間質問  ######
         ####################################################
-        socket_com.start_server_getString() # サーバー立てて文字取得まで待機
+        # socket_com.start_server_getString() # サーバー立てて文字取得まで待機
+        time.sleep(5)
         rec.recording()                     # recordingスタート
 
         url = "http://127.0.0.1:8000/api/mp3_openai/"
