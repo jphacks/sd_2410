@@ -18,6 +18,7 @@ load_dotenv()
 
 OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
 SERP_API_KEY = os.getenv('SERP_API_KEY')
+SLACK_API_KEY = os.getenv('SLACK_API_KEY')
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent

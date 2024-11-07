@@ -15,9 +15,8 @@ logger = logging.getLogger('myapp')
 # APIキーを設定
 OPENAI_API_KEY = settings.OPENAI_API_KEY
 client = OpenAI(api_key=OPENAI_API_KEY)
-logger.info(OPENAI_API_KEY)
-@api_view(['GET', 'POST'])
 
+@api_view(['GET', 'POST'])
 def call_openai_api(request):
     # APIRequestFactoryを使って内部的にリクエストを作成
     factory = APIRequestFactory()

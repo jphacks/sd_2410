@@ -87,6 +87,11 @@ elif current_status == 'A' and times >= 0 and current_alarm <= current_time:
         times += 1
         status_csv_write("A", times, current_time +5)
 
+        #30分間起きなかったら、slackに寝てる写真が送られる。
+        if times == 6:
+            url = "http://127.0.0.1:8000/api/send_image/"
+            response = requests.get(url)
+
     elif(okita == "1"):
         print("起きたと判断")
         subprocess.run("echo 'on 0' | cec-client -s", shell=True, stdout=subprocess.DEVNULL)
