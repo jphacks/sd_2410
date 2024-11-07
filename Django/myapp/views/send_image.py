@@ -14,7 +14,6 @@ SLACK_API_KEY = os.getenv("SLACK_API_KEY")
 
 client = WebClient(token=SLACK_API_KEY)
 
-
 @api_view(['GET'])
 def send_image_with_text(request):
     channel_id = "C07QE91Q6U9"

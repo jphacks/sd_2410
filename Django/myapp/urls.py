@@ -12,5 +12,5 @@ urlpatterns = [
     path('mp3_openai/', mp3_to_time, name="mp3_api"),
     path('image_openai/', image_view, name="image_view"),
     path('search/', search, name="image_view"),
-    path('send_image', send_image_with_text, name='send_image')
+    path('send_image/', send_image_with_text, name='send_image')
 ]

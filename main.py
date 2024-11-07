@@ -13,7 +13,6 @@ os.chdir(os.path.dirname(os.path.abspath(__file__)))
 # subprocess.run("echo 'on 0' | cec-client -s", shell=True, stdout=subprocess.DEVNULL)
 # print("TV on")
 
-
 # 作成したもの
 import camera            # take photo
 import BrightnessChecker # check goout/inhome
