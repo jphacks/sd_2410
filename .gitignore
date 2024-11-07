@@ -1,11 +1,6 @@
 jphacks_env/
 __pycache__/
 .env
-Django/myproject/
-Django/myapp/__pycache__/
-Django/myapp/__init__.py
-Django/myapp/views/__pycache__/
-Django/myapp/migrations/__pycache__/
 photo.jpg
 status.csv
 audio/voice.wav
