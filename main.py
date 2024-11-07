@@ -115,13 +115,13 @@ elif current_status == 'A' and times >= 0 and current_alarm <= current_time:
 # 外出中
 elif current_status == 'B' and times == 2 and current_alarm == 9999:
 
-    # camera.take_photo() # take photo
+    camera.take_photo() # take photo
     # check goout/inhome
-    # if BrightnessChecker.homeChecker():
-    if True:
+    if BrightnessChecker.homeChecker():
+    # if True:
         # true -> in home
-        # subprocess.run("echo 'on 0' | cec-client -s", shell=True, stdout=subprocess.DEVNULL)
-        # print("TV on")
+        subprocess.run("echo 'on 0' | cec-client -s", shell=True, stdout=subprocess.DEVNULL)
+        print("TV on")
         time.sleep(0.5) # テレビつくのを待つ
 
         socket_com.start_client_sendString("おかえり、明日は何時に起こせばいいんだ？") # サーバー接続して文字送信
