@@ -5,6 +5,7 @@ from .views.mp3_to_time import mp3_to_time
 from .views.image import image_view
 from .views.search import search
 from .views.send_image import send_image_with_text
+from .views.wake_up import wake_up
 
 urlpatterns = [
     path('openai-api/', openai_api_view, name='openai_api'),
@@ -12,5 +13,6 @@ urlpatterns = [
     path('mp3_openai/', mp3_to_time, name="mp3_api"),
     path('image_openai/', image_view, name="image_view"),
     path('search/', search, name="image_view"),
-    path('send_image/', send_image_with_text, name='send_image')
+    path('send_image/', send_image_with_text, name='send_image'),
+    path('wake_up/<int:times>/', wake_up, name='wake_up'),
 ]

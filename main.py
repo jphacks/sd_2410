@@ -78,6 +78,11 @@ elif current_status == 'A' and times >= 0 and current_alarm <= current_time:
         print("TV on")
         time.sleep(5)
 
+        #TKD書き足し部分-スヌーズ機能用-----------------------
+        url = f"http://127.0.0.1:8000/api/wake_up/{times}"
+        response = requests.post(url)
+        string = response.json().get('answer')
+        #---------------------------------------------------
         socket_com.start_client_sendString("起きる時間なのだ。早くベッドから出るのだ。早くずんだ餅食べたいのだ。") # サーバー接続して文字送信
         ####################################################
         ##### 起こすずんだもん起動   ######
