@@ -1,6 +1,7 @@
 jphacks_env/
 __pycache__/
-.env
+*.pyc
+*.env
 photo.jpg
 status.csv
 audio/voice.wav
