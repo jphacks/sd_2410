@@ -12,7 +12,9 @@ def set_alarm(minutes):
     
 def wake_me_up_in():
     okita = "0" # 初期化
+    times = 0
     while(not(okita)):
+        times += 1
         camera.take_photo() # take photo
         ###########################################
         #####   画像を読み込んで起きてるか判断   ######
