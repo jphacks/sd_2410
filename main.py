@@ -83,6 +83,7 @@ elif current_status == 'A' and times >= 0 and current_alarm <= current_time:
         response = requests.post(url)
         string = response.json().get('answer')
         #---------------------------------------------------
+        #82行目の文字列をstringに変えればスヌーズ機能が追加される。
         socket_com.start_client_sendString("起きる時間なのだ。早くベッドから出るのだ。早くずんだ餅食べたいのだ。") # サーバー接続して文字送信
         ####################################################
         ##### 起こすずんだもん起動   ######
