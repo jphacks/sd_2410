@@ -58,7 +58,7 @@ current_status, times, current_alarm = status_csv_read()
 if current_status == 'A' and times == 0 and current_alarm > current_time:
     print("就寝中")
 
-# 状態A,0-n,次のアラーム時間 起床すべき時間
+# 状態A,0~n,次のアラーム時間 起床すべき時間
 elif current_status == 'A' and times >= 0 and current_alarm <= current_time:
     okita = "0" # 初期化
     camera.take_photo() # take photo
@@ -81,12 +81,11 @@ elif current_status == 'A' and times >= 0 and current_alarm <= current_time:
         #TKD書き足し部分-スヌーズ機能用-----------------------
         url = f"http://127.0.0.1:8000/api/wake_up/{times}"
         response = requests.post(url)
-        string = response.json().get('answer')
-        #---------------------------------------------------
-        #82行目の文字列をstringに変えればスヌーズ機能が追加される。
-        socket_com.start_client_sendString("起きる時間なのだ。早くベッドから出るのだ。早くずんだ餅食べたいのだ。") # サーバー接続して文字送信
+        wake_up_string = response.json().get('answer')
+        socket_com.start_client_sendString(wake_up_string) 
+        # socket_com.start_client_sendString("起きる時間なのだ。早くベッドから出るのだ。") # サーバー接続して文字送信
         ####################################################
-        ##### 起こすずんだもん起動   ######
+        #####        起こすずんだもん起動         ######
         ####################################################
         socket_com.start_server_getString(65432) # サーバー立てて文字取得まで待機
 
