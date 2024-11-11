@@ -10,13 +10,18 @@ import requests
 
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
+# VPNのIPアドレス設定
+# /home/izumi/Desktop/git/sd_2410/Unity/socket_send_msg.py
+# /home/izumi/Desktop/git/sd_2410/my_socket/my_config.py
+
+# デモ用 テレビ付けるのに7sかかるため、最初に起動
 # subprocess.run("echo 'on 0' | cec-client -s", shell=True, stdout=subprocess.DEVNULL)
 # print("TV on")
 
-# 作成したもの
-import camera            # take photo
-import BrightnessChecker # check goout/inhome
-import rec              # record get up time
+# 作成したモジュール(Todo モジュールファイルへの移動)
+import camera            # 写真を撮って保存
+import BrightnessChecker # 部屋の明るさチェック
+import rec               # レコード開始
 from my_socket import socket_com # ソケット通信
 
 start = time.time()
@@ -49,11 +54,11 @@ def status_csv_read(filename='status.csv'):
 # ステータス確認
 current_status, times, current_alarm = status_csv_read()
 
-# 起床前
+# 状態A,0,セットしたアラーム時間 就寝中||起床前
 if current_status == 'A' and times == 0 and current_alarm > current_time:
     print("就寝中")
 
-# 起床すべき時間
+# 状態A,0-n,次のアラーム時間 起床すべき時間
 elif current_status == 'A' and times >= 0 and current_alarm <= current_time:
     okita = "0" # 初期化
     camera.take_photo() # take photo
@@ -98,10 +103,9 @@ elif current_status == 'A' and times >= 0 and current_alarm <= current_time:
 
         status_csv_write("B", 1, 9999) # 起きたのでcsv書き換え
 
-        socket_com.start_client_sendString("今日8月20日はずんだ餅の日なのだ") # サーバー接続して文字送信
+        socket_com.start_client_sendString("今日8月20日はずんだ餅の日なのだ") # (Todo unity側で自動で見つける？)
         ####################################################
-        ##### I/O なし/実行終了合図      ######
-        ##### うんちくずんだもん起動      ######
+        ##### 　　　　　うんちくずんだもん起動      ######
         ####################################################
         socket_com.start_server_getString(65432) # サーバー立てて文字取得まで待機
 
@@ -111,21 +115,20 @@ elif current_status == 'A' and times >= 0 and current_alarm <= current_time:
         status_csv_write("B", 2, 9999) # 起きたのでcsv書き換えて終了
 
 
-# 外出中
+# 状態B,2,9999 外出中
 elif current_status == 'B' and times == 2 and current_alarm == 9999:
 
     camera.take_photo() # take photo
     # check goout/inhome
-    if BrightnessChecker.homeChecker():
-    # if True:
-        # true -> in home
+    if BrightnessChecker.homeChecker(): # true -> in home
+    # if True: # デモ用(無条件で帰宅状態に)
         subprocess.run("echo 'on 0' | cec-client -s", shell=True, stdout=subprocess.DEVNULL)
         print("TV on")
-        time.sleep(0.5) # テレビつくのを待つ
+        time.sleep(0.5) # テレビつくのを待つ(デモ用に短く設定)
 
-        socket_com.start_client_sendString("おかえり、明日は何時に起こせばいいんだ？") # サーバー接続して文字送信
+        socket_com.start_client_sendString("おかえり、明日は何時に起こせばいいのだ？") # サーバー接続して文字送信
         ####################################################
-        ##### 起床時間質問Unity  ######
+        #####         Unityから起床時間の質問        ######
         ####################################################
         socket_com.start_server_getString(65432) # サーバー立てて文字取得まで待機
 
@@ -139,7 +142,7 @@ elif current_status == 'B' and times == 2 and current_alarm == 9999:
 
         socket_com.start_client_sendString(response_line) # サーバー接続して文字送信
         ####################################################
-        ##### 起床時間確認Unity  ######
+        #####          Unityから起床時間の復唱       ######
         ####################################################
         socket_com.start_server_getString(65432) # サーバー立てて文字取得まで待機
 
@@ -148,7 +151,7 @@ elif current_status == 'B' and times == 2 and current_alarm == 9999:
     else:
         print("外出中")
 
-# 日付またぎ(アラーム時間と現在時間を大小比較するため)
+# 状態B,3,セットしたアラーム時間 日付またぎ(アラーム時間と現在時間を大小比較するため)
 elif current_status == 'B' and times == 3 and current_alarm == 9999:
     if "0000" <= current_time <= "0030": # 冗長
         status_csv_write("A", 0, current_alarm)
