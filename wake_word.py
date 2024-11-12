@@ -1,5 +1,5 @@
 import speech_recognition as sr
-import _openai
+import openai
 #import pygame
 import json
 from datetime import datetime
@@ -14,7 +14,7 @@ from my_socket import socket_com # ソケット通信
 # 環境変数設定
 dotenv.load_dotenv()
 OPEN_AI_API=os.environ.get("OPEN_AI_API")
-_openai.api_key = OPEN_AI_API
+openai.api_key = OPEN_AI_API
 
 WAKE_WORD = "おい"  # 任意のウェイクワードに変更可能
 
@@ -58,7 +58,7 @@ register_function_description={
 
 def get_openai_response(prompt, model="gpt-4o-mini"):
     try:
-        response = _openai.chat.completions.create(
+        response = openai.chat.completions.create(
             model=model,
             messages=[
                 {"role": "system", "content":"生意気な口調で「なのだ」口調でしゃべって。100字以内"},
@@ -78,7 +78,7 @@ def get_openai_response(prompt, model="gpt-4o-mini"):
             #args = json.loads(message.function_call.arguments)
             result = get_events()
             # 関数の結果をChatGPTに送信して応答を作成
-            follow_up_response = _openai.chat.completions.create(
+            follow_up_response = openai.chat.completions.create(
                 model="gpt-4o-mini",
                 messages=[
                     {"role": "system", "content":"生意気な口調で「なのだ」口調でしゃべって。カレンダーへのリンクは応答に含めないでください。100字以内"},
@@ -96,7 +96,7 @@ def get_openai_response(prompt, model="gpt-4o-mini"):
             print(args.get("summary"),args.get("start"),args.get("end"))
             result = register_event(args.get("summary"),args.get("start"),args.get("end"))
             # 関数の結果をChatGPTに送信して応答を作成
-            follow_up_response = _openai.chat.completions.create(
+            follow_up_response = openai.chat.completions.create(
                 model="gpt-4o-mini",
                 messages=[
                     {"role": "system", "content":"生意気な口調で「なのだ」口調でしゃべって。100字以内"},
@@ -156,7 +156,7 @@ def detect_wake_word():
         # ウェイクワードが音声に含まれているかをチェック
         if WAKE_WORD in transcription:
             print("ウェイクワードが検出されました！")
-            sys.exit(0) # 確認用
+            # sys.exit(0) # 確認用
 
             # 音声ファイルを保存して再生(絶対パス)
             # コピー元ファイルをバイナリで読み込み、コピー先ファイルに書き込む
