@@ -6,3 +6,6 @@ google-auth-oauthlib
 google-api-python-client
 # sudo apt-get install portaudio19-dev
 pyaudio
+pandas
+matplotlib
+# sudo apt install cec-utils -y

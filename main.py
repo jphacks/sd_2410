@@ -70,9 +70,13 @@ elif current_status == 'wakeup_standby' and times >= 0 and current_alarm <= curr
     # 画像を読投げて起きてるか判断   
     url = "http://127.0.0.1:8000/api/image_openai/"
     response = requests.post(url)
-    # print("response", response.json()) # Debug
-    okita = response.json().split(": ")[1].strip(" \n}")
+    print("response", response.json()) # Debug
+    try:
+        okita = response.json().split(": ")[1].strip(" \n}")
+    except:
+        okita = response.json().split(":")[1].strip("}")
     print("\n起きた:1 寝てる:0 →", okita)  # 起きてた：1/寝てた：0
+    okita = "0" # デモ用(無条件で寝てると判断)
 
     if(okita == "0"):
         print("まだ寝てると判断")
@@ -83,7 +87,9 @@ elif current_status == 'wakeup_standby' and times >= 0 and current_alarm <= curr
         #TKD-スヌーズ機能用-----------------------
         url = f"http://127.0.0.1:8000/api/wake_up/{times}"
         response = requests.post(url)
+        print("response", response)
         wake_up_string = response.json().get('answer')
+        print("wake_up_string", wake_up_string)
         socket_com.start_client_sendString(wake_up_string) 
         ####################################################
         #####        起こすずんだもん起動         ######
@@ -111,6 +117,7 @@ elif current_status == 'wakeup_standby' and times >= 0 and current_alarm <= curr
 
         url = "http://127.0.0.1:8000/api/search_today/"
         response = requests.get(url)
+        print("response", response.json())
         socket_com.start_client_sendString(response) # Todo 今日の予定も？
         ####################################################
         ##### 　　　Unityからうんちくずんだもん起動      ######

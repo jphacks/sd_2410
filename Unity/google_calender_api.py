@@ -53,13 +53,16 @@ def register_event(summary:str, start:str, end:str):
     return "登録成功"
    
 # カレンダーから情報取得
-def get_events():
+def get_events(start:str, end:str):
     service = get_calendar_service()
     # 今から1週間分のイベントを取得する
-    now = datetime.now().isoformat() + 'Z'
+    #now = datetime.now().isoformat() + 'Z'
     events_result = service.events().list(
-        calendarId='primary', timeMin=now,
-        maxResults= 3, singleEvents=True,
+        calendarId='primary',
+        timeMin=start,
+        timeMax=end,
+        maxResults= 2,
+        singleEvents=True,
         orderBy='startTime').execute()
     events = events_result.get('items', [])
     if not events:

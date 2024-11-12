@@ -20,16 +20,20 @@ WAKE_WORD = "おい"  # 任意のウェイクワードに変更可能
 
 get_function_description={
     "name":"get_events",
-    "description":"カレンダーを参照して今日の予定を取得する",
+    "description":f"カレンダーを参照して予定を取得する,現在時刻は{datetime.now().isoformat()}",
         "parameters": {
             "type": "object",
             "properties": {
-                "schedule": {
+                "start": {
                     "type": "string",
-                    "description": "直近の予定"
+                    "description": "予定を参照する日の始まり(例:2024-11-17T00:00:00+09:00)"
+                },
+                "end": {
+                    "type": "string",
+                    "description": "# 予定を参照する日の終わり(例:2024-11-17T23:59:59+09:00)"
                 }
             },
-        "required": ["schedule"]
+        "required": ["start", "end"]
         }
     }
 
@@ -70,13 +74,12 @@ def get_openai_response(prompt, model="gpt-4o-mini"):
         # 応答テキストを抽出
         # ChatGPTの応答から関数呼び出しの情報を取得
         message = response.choices[0].message
-
         # 関数がget_eventsの場合、関数を実行
-        
         if message.function_call is not None and message.function_call.name == "get_events":
             print("get_eventsが選択されました")
-            #args = json.loads(message.function_call.arguments)
-            result = get_events()
+            # print(args.get(args.get("start"),args.get("end"))) # デバッグ用
+            args = json.loads(message.function_call.arguments)
+            result = get_events(args.get("start"),args.get("end"))
             # 関数の結果をChatGPTに送信して応答を作成
             follow_up_response = openai.chat.completions.create(
                 model="gpt-4o-mini",
@@ -89,7 +92,6 @@ def get_openai_response(prompt, model="gpt-4o-mini"):
             )
             print(follow_up_response.choices[0].message.content)
             return follow_up_response.choices[0].message.content
-        
         if message.function_call is not None and message.function_call.name == "register_event":
             print("register_eventが選択されました")
             args = json.loads(message.function_call.arguments)
@@ -107,12 +109,11 @@ def get_openai_response(prompt, model="gpt-4o-mini"):
             )
             print(follow_up_response.choices[0].message.content)
             return follow_up_response.choices[0].message.content
-
         return response.choices[0].message.content
-    
     except Exception as e:
         print(f"OpenAI APIでエラーが発生しました エラー：{e}")
         return None
+
 
 #Unityが無い環境はこっち使ってください
 # #ここにLLMからの応答データを入れる

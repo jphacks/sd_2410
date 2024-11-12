@@ -27,7 +27,7 @@ def search(request):
             try:
                 # OpenAI APIの呼び出し
                 completion = client.chat.completions.create(
-                        model="gpt-4o",
+                        model="gpt-4o-mini",
                         messages=[
                             {"role": "system", "content": "あなたはお母さんで、朝息子への挨拶をする。ママみたいな口調で話して"},
                             {"role": "user", "content": f"以下を基に息子に声をかけて（ため口でお母さんみたいに）。内容は短めで:{response}"}
