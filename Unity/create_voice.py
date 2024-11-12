@@ -9,7 +9,7 @@ import os
 # 親ディレクトリをPythonのパスに追加
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 # from sd_2410.audio.register_time import register_and_responce
-from sd_2410.Unity.socket_server import getString_socket
+# from sd_2410.Unity.socket_server import getString_socket
 
 # ずんだもんの話者ID
 speaker_id = 3

@@ -10,6 +10,7 @@ SCOPES = ["https://www.googleapis.com/auth/calendar"]
 TOKEN_PATH=f"{os.path.dirname(os.path.abspath(__file__))}/token.json"
 CRED_PATH=f"{os.path.dirname(os.path.abspath(__file__))}/credentials.json"
 
+# google API認証
 def get_calendar_service():
     creds = None
     # 既存のトークンファイルがあれば読み込む（トークンは認証情報を保存するためのもの）
@@ -51,7 +52,7 @@ def register_event(summary:str, start:str, end:str):
     print('Event created: %s' % created_event.get('htmlLink'))  # 作成したイベントのリンクを出力
     return "登録成功"
    
-
+# カレンダーから情報取得
 def get_events():
     service = get_calendar_service()
     # 今から1週間分のイベントを取得する

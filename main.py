@@ -10,6 +10,10 @@ import requests
 
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
+
+# /home/izumi/Desktop/git/sd_2410/my_socket/my_config.py
+# ソケット通信のIPアドレス設定忘れずに
+
 # VPNのIPアドレス設定(ToDo)
 # /home/izumi/Desktop/git/sd_2410/Unity/socket_send_msg.py
 # /home/izumi/Desktop/git/sd_2410/my_socket/my_config.py
@@ -29,7 +33,7 @@ now = datetime.datetime.now()
 current_time = int(now.strftime("%H%M"))  # 現在時間取得 1713
 
 
-def status_csv_write(status, times, alarm, filename='status.csv'):
+def status_csv_write(status, times, alarm, filename='modules/status.csv'):
     # 先頭に追加する行をデータフレームで作成
     new_row = pd.DataFrame([[status, times, alarm]], columns=['status', 'times', 'alarm'])
     # 既存のCSVファイルを読み込み
@@ -40,7 +44,7 @@ def status_csv_write(status, times, alarm, filename='status.csv'):
     updated_data.to_csv(filename, index=False)
 
 
-def status_csv_read(filename='status.csv'):
+def status_csv_read(filename='modules/status.csv'):
     # CSVファイルの最初の1行だけを読み込む
     first_row = pd.read_csv(filename, nrows=1)
     
@@ -54,11 +58,11 @@ def status_csv_read(filename='status.csv'):
 # ステータス確認
 current_status, times, current_alarm = status_csv_read()
 
-# 状態A,0,セットしたアラーム時間 就寝中||起床前
+# 状態 wakeup_standby,0,セットしたアラーム時間 就寝中||起床前
 if current_status == 'wakeup_standby' and times == 0 and current_alarm > current_time:
     print("就寝中")
 
-# 状態A,0~n,次のアラーム時間 起床すべき時間
+# 状態 wakeup_standby,0~n,次のアラーム時間 起床すべき時間
 elif current_status == 'wakeup_standby' and times >= 0 and current_alarm <= current_time:
     okita = "0" # 初期化
     camera.take_photo() # take photo
@@ -81,7 +85,6 @@ elif current_status == 'wakeup_standby' and times >= 0 and current_alarm <= curr
         response = requests.post(url)
         wake_up_string = response.json().get('answer')
         socket_com.start_client_sendString(wake_up_string) 
-        # socket_com.start_client_sendString("起きる時間なのだ。早くベッドから出るのだ。") # サーバー接続して文字送信
         ####################################################
         #####        起こすずんだもん起動         ######
         ####################################################
@@ -106,7 +109,9 @@ elif current_status == 'wakeup_standby' and times >= 0 and current_alarm <= curr
 
         status_csv_write('wokeup', 1, 9999) # 起きたのでcsv書き換え
 
-        socket_com.start_client_sendString("今日8月20日はずんだ餅の日なのだ") # (Todo unity側で自動で見つける？)
+        url = "http://127.0.0.1:8000/api/search_today/"
+        response = requests.get(url)
+        socket_com.start_client_sendString(response) # Todo 今日の予定も？
         ####################################################
         ##### 　　　Unityからうんちくずんだもん起動      ######
         ####################################################
@@ -118,7 +123,7 @@ elif current_status == 'wakeup_standby' and times >= 0 and current_alarm <= curr
         status_csv_write('wokeup', 2, 9999) # 起きたのでcsv書き換えて終了
 
 
-# 状態wokeup,2,9999 外出中
+# 状態 wokeup,2,9999 外出中
 elif current_status == 'wokeup' and times == 2 and current_alarm == 9999:
 
     camera.take_photo() # take photo
@@ -140,7 +145,7 @@ elif current_status == 'wokeup' and times == 2 and current_alarm == 9999:
         response = requests.post(url)
         
         set_alarm = int(response.json()['time']) # 起床時間
-        # status_csv_write('wokeup', 3, set_alarm)
+        status_csv_write('wokeup', 3, set_alarm)
         response_line = response.json()['response'] # 喋るセリフ
 
         socket_com.start_client_sendString(response_line) # サーバー接続して文字送信
@@ -154,7 +159,7 @@ elif current_status == 'wokeup' and times == 2 and current_alarm == 9999:
     else:
         print("外出中")
 
-# 状態wokeup,3,セットしたアラーム時間 日付またぎ(アラーム時間と現在時間を大小比較するため)
+# 状態 wokeup,3,セットしたアラーム時間 日付またぎ(アラーム時間と現在時間を大小比較するため)
 elif current_status == 'wokeup' and times == 3 and current_alarm == 9999:
-    if "0000" <= current_time <= "0030": # 冗長
+    if "0000" <= current_time <= "0015": # 冗長
         status_csv_write('wakeup_standby', 0, current_alarm)
