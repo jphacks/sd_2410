@@ -1,0 +1,2 @@
+speech_recognition
+# sudo apt-get install flac
