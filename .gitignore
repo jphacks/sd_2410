@@ -4,3 +4,5 @@ __pycache__/
 photo.jpg
 status.csv
 audio/voice.wav
+.vscode
+venv
