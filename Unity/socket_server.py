@@ -7,7 +7,8 @@ def getString_socket():
     # バインドするアドレスとポート
     # host = socket.gethostbyname(socket.gethostname())  # localhost
     host = "0.0.0.0"
-    port = 65432
+    port = 54321
+    # port = my_config.UNITY_PORT  # ../../my_socket/my_config.pyが読み込めなかった
     server_socket.bind((host, port))
 
     # クライアントからの接続を待機

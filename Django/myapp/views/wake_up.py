@@ -28,8 +28,8 @@ def wake_up(request, times):
             completion = client.chat.completions.create(
                     model="gpt-4o-mini",
                     messages=[
-                        {"role": "system", "content": "あなたは怒らせたら怖いお母さんです.あなたは自分の子供を起こしています。"},
-                        {"role": "user", "content": f"日本語で6段階中{times}段階目くらいの口調で子供を起こしてください。3段階目から男性口調で怒ってください。「もうこれで{times}回おこしてるよ」みたいに起こしてください"}
+                        {"role": "system", "content": "あなたはお母さんです．あなたは自分の子供を起こしています．あなたには[0,1]の範囲の怒りポイントがあります．怒りポイントが1に近づくほど怒ってください．文字数は50文字程度"},
+                        {"role": "user", "content": f"子供を起こしてください．今のあなたの怒りポイントは{times/6}です．"}
                     ]
             )
             # OpenAIからのレスポンスを取得

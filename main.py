@@ -28,6 +28,7 @@ import BrightnessChecker # 部屋の明るさチェック
 import rec               # レコード開始
 from my_socket import socket_com # ソケット通信
 from bedtime_reminder import is_remind_time
+from my_socket import my_config
 
 start = time.time()
 now = datetime.datetime.now() 
@@ -57,8 +58,8 @@ def status_csv_read(filename='modules/status.csv'):
     return current_status, times, current_alarm
 
 def send_to_unity_and_wait(message):
-        socket_com.start_client_sendString(message) 
-        return socket_com.start_server_getString(65432) # サーバー立てて文字取得まで待機
+        socket_com.start_client_sendString(message, port=my_config.UNITY_PORT) 
+        return socket_com.start_server_getString(port=my_config.RASPBERRYPI_PORT) # サーバー立てて文字取得まで待機
 
 
 # ステータス確認
@@ -90,13 +91,16 @@ elif current_status == 'wakeup_standby' and times >= 0 and current_alarm <= curr
         print("TV on")
         time.sleep(5)
 
+        times += 1
+
         #TKD-スヌーズ機能用-----------------------
         url = f"http://127.0.0.1:8000/api/wake_up/{times}/"
         response = requests.post(url)
         # print("response", response)
         wake_up_string = response.json().get('answer')
+        sent_to_unity_message = f"{times}:{wake_up_string}"
         # print("wake_up_string", wake_up_string)
-        send_to_unity_and_wait(wake_up_string)
+        send_to_unity_and_wait(sent_to_unity_message)
 
         ####################################################
         #####        起こすずんだもん起動         ######
@@ -106,7 +110,6 @@ elif current_status == 'wakeup_standby' and times >= 0 and current_alarm <= curr
         print("TV off")
 
         # csv書き換え
-        times += 1
         status_csv_write('wakeup_standby', times, current_time +5)
 
         #30分間起きなかったら、slackに寝てる写真が送られる。
@@ -121,11 +124,12 @@ elif current_status == 'wakeup_standby' and times >= 0 and current_alarm <= curr
 
         status_csv_write('wokeup', 1, 9999) # 起きたのでcsv書き換え
 
-        url = "http://127.0.0.1:8000/api/search_today/"
-        response = requests.get(url)
+        url = "http://127.0.0.1:8000/api/search/"
+        data = "{}" # api側はこのdataを使っていない．指定する必要は？
+        response = requests.post(url, data=data)
         print("response", response.json())
 
-        send_to_unity_and_wait(response) # Todo 今日の予定も？
+        send_to_unity_and_wait(response.json()['answer']) # Todo 今日の予定も？
 
         ####################################################
         ##### 　　　Unityからうんちくずんだもん起動      ######
@@ -148,7 +152,11 @@ elif current_status == 'wokeup' and times == 2 and current_alarm == 9999:
         print("TV on")
         time.sleep(0.5) # テレビつくのを待つ(デモ用に短く設定)
 
-        message = "おかえり、明日は何時に起こせばいいのだ？"
+        # message = "おかえり、明日は何時に起こせばいいのだ？"
+        url = "http://127.0.0.1:8000/api/welcome_back/"
+        message = requests.get(url).json()['answer']
+
+
         send_to_unity_and_wait(message)
 
         ####################################################
@@ -185,9 +193,10 @@ elif current_status == 'wokeup' and times == 3:
 
             url = f"http://127.0.0.1:8000/api/sleep_remind/?alarm_time={alarm_time_str}&sleep_duration={sleep_duration}"
             response = requests.get(url)
-            print(response.json()["answer"])
+            message = response.json()['answer']
+            print(message)
 
-            send_to_unity_and_wait(response)
+            send_to_unity_and_wait(message)
             ####################################################
             #####          アバターが睡眠催促       ######
             ####################################################
