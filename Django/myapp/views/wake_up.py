@@ -29,13 +29,14 @@ def wake_up(request, times):
                     model="gpt-4o-mini",
                     messages=[
                         {"role": "system", "content": "あなたは怒らせたら怖いお母さんです.あなたは自分の子供を起こしています。"},
-                        {"role": "user", "content": f"日本語で6段階中{times}段階目くらいの口調で子供を起こしてください。3段階目から男性口調で起こってください。「もうこれで{times}回おこしてるよ」みたいに起こしてください"}
+                        {"role": "user", "content": f"日本語で6段階中{times}段階目くらいの口調で子供を起こしてください。3段階目から男性口調で怒ってください。「もうこれで{times}回おこしてるよ」みたいに起こしてください"}
                     ]
             )
             # OpenAIからのレスポンスを取得
             answer = completion.choices[0].message.content
-            logger.error(f"times: ({times})")
-            logger.error(f"answer: {str(answer.json())}")
+            # logger.error(f"times: ({times})")
+            # logger.error(f"answer: {answer}")
+
             return JsonResponse({'answer': answer})
         except Exception as e:
             logger.error(f"Error in wake_up function: {str(e)}")

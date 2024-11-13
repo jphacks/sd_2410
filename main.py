@@ -85,11 +85,11 @@ elif current_status == 'wakeup_standby' and times >= 0 and current_alarm <= curr
         time.sleep(5)
 
         #TKD-スヌーズ機能用-----------------------
-        url = f"http://127.0.0.1:8000/api/wake_up/{times}"
+        url = f"http://127.0.0.1:8000/api/wake_up/{times}/"
         response = requests.post(url)
-        print("response", response)
+        # print("response", response)
         wake_up_string = response.json().get('answer')
-        print("wake_up_string", wake_up_string)
+        # print("wake_up_string", wake_up_string)
         socket_com.start_client_sendString(wake_up_string) 
         ####################################################
         #####        起こすずんだもん起動         ######

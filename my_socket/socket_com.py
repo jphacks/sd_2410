@@ -1,7 +1,6 @@
 import socket
-import threading
 import time
-from my_config import SERVER_PC_PORT, SERVER_PC_IP
+from my_socket.my_config import SERVER_PC_PORT, SERVER_PC_IP
 
 # サーバーを立てて、テキスト取得したらサーバー閉じる
 # def start_server_getString(port):
