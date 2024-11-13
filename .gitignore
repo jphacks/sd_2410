@@ -10,3 +10,4 @@ credentials.json
 my_socket/my_config.py
 .vscode
 venv
+Unity/unity_pc_test.py
