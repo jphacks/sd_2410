@@ -1,11 +1,10 @@
 import socket
-import threading
 import time
-# import my_config
+from my_socket.my_config import SERVER_PC_PORT, SERVER_PC_IP
 
 # サーバーを立てて、テキスト取得したらサーバー閉じる
-def start_server_getString(port):
-# def start_server_getString(host=my_config.SERVER_PC_IP, port=my_config.PORT):
+# def start_server_getString(port):
+def start_server_getString(port=SERVER_PC_PORT):
     server_socket = socket.socket(socket.AF_INET, socket.SO_VM_SOCKETS_BUFFER_MIN_SIZE)
     server_socket.bind(("0.0.0.0", port))
     server_socket.listen()
@@ -30,7 +29,7 @@ def start_server_getString(port):
     return data.decode('utf-8')
 
 # クライアント接続して、文字を送って接続解除
-def start_client_sendString(message, host="10.0.0.192", port=65432):
+def start_client_sendString(message, host=SERVER_PC_IP, port=SERVER_PC_PORT):
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     client_socket.connect((host, port))
     client_socket.sendall(message.encode('utf-8'))

@@ -15,6 +15,6 @@ def take_photo():
   # OpenCVを使用して画像を読み込む
   img = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
 
-  cv2.imwrite("photo.jpg", img)
+  cv2.imwrite("modules/photo.jpg", img)
  
 

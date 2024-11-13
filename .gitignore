@@ -1,8 +1,12 @@
 jphacks_env/
 __pycache__/
-.env
+*.pyc
+*.env
 photo.jpg
 status.csv
 audio/voice.wav
+test_code/
+credentials.json
+my_socket/my_config.py
 .vscode
 venv
