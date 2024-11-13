@@ -27,11 +27,13 @@ import camera            # 写真を撮って保存
 import BrightnessChecker # 部屋の明るさチェック
 import rec               # レコード開始
 from my_socket import socket_com # ソケット通信
+from bedtime_reminder import is_remind_time
 
 start = time.time()
 now = datetime.datetime.now() 
 current_time = int(now.strftime("%H%M"))  # 現在時間取得 1713
 
+sleep_duration = 7  # 何時間寝たいか
 
 def status_csv_write(status, times, alarm, filename='modules/status.csv'):
     # 先頭に追加する行をデータフレームで作成
@@ -165,6 +167,14 @@ elif current_status == 'wokeup' and times == 2 and current_alarm == 9999:
         print("TV standby")
     else:
         print("外出中")
+
+# 状態睡眠催促すべき状態
+elif current_status == 'wokeup' and times == 3:
+    alarm_time_str = str(current_alarm).zfill(4) # 0でパディング，例：600を0600に
+    if is_remind_time(alarm_time_str, sleep_duration, 5, "2300"):
+        url = f"http://127.0.0.1:8000/api/sleep_remind/?alarm_time={alarm_time_str}&sleep_duration={sleep_duration}"
+        response = requests.get(url)
+        print(response.json()["answer"])
 
 # 状態 wokeup,3,セットしたアラーム時間 日付またぎ(アラーム時間と現在時間を大小比較するため)
 elif current_status == 'wokeup' and times == 3 and current_alarm == 9999:
