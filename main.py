@@ -9,16 +9,16 @@ import json
 
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
-is_runging_on_rasp = False # ラズパイで動かす時はTrue，ローカルでテストするときはFalse
+is_runging_on_rasp = True # ラズパイで動かす時はTrue，ローカルでテストするときはFalse
 # デモ用 テレビ付けるのに7sかかるため、最初に起動
 # subprocess.run("echo 'on 0' | cec-client -s", shell=True, stdout=subprocess.DEVNULL)
 # print("TV on")
 
 # 作成したモジュール
-from modules import camera            # 写真を撮って保存
-from modules import BrightnessChecker # 部屋の明るさチェック
-from modules import rec               # レコード開始
-from modules.my_socket import socket_com # ソケット通信
+from modules import camera                # 写真を撮って保存
+from modules import BrightnessChecker     # 部屋の明るさチェック
+from modules import rec                   # レコード開始
+from modules.my_socket import socket_com  # ソケット通信
 from modules.bedtime_reminder import is_remind_time
 from modules.google_calender_api import get_events_today
 
@@ -26,7 +26,7 @@ start = time.time()
 now = datetime.datetime.now() 
 current_time = int(now.strftime("%H%M"))  # 現在時間取得 例)1713
 
-def status_csv_write(status, times, alarm, filename='status.csv'):
+def status_csv_write(status, times, alarm, filename='modules/status.csv'):
     # 先頭に追加する行をデータフレームで作成
     new_row = pd.DataFrame([[status, times, alarm]], columns=['status', 'times', 'alarm'])
     # 既存のCSVファイルを読み込み
@@ -36,7 +36,7 @@ def status_csv_write(status, times, alarm, filename='status.csv'):
     # 上書き保存
     updated_data.to_csv(filename, index=False)
 
-def status_csv_read(filename='status.csv'):
+def status_csv_read(filename='modules/status.csv'):
     # CSVファイルの最初の1行だけを読み込む
     first_row = pd.read_csv(filename, nrows=1)
     
@@ -47,7 +47,7 @@ def status_csv_read(filename='status.csv'):
     
     return current_status, times, current_alarm
 
-def speaker_csv_read(filename='speaker.csv'):
+def speaker_csv_read(filename='modules/speaker.csv'):
     # CSVファイルの最初の1行だけを読み込む
     first_row = pd.read_csv(filename, nrows=1)
     
@@ -59,8 +59,8 @@ def speaker_csv_read(filename='speaker.csv'):
 
 def send_to_unity_and_wait(message, times=-1):
     message = f"{times}:{speaker_id}:{message}"
-    socket_com.start_client_sendString(message, port=my_config.UNITY_PORT) 
-    return socket_com.start_server_getString(port=my_config.RASPBERRYPI_PORT) # サーバー立てて文字取得まで待機
+    socket_com.start_client_sendString(message) 
+    return socket_com.start_server_getString() # サーバー立てて文字取得まで待機
 
 # ステータス確認
 current_status, times, current_alarm = status_csv_read()
@@ -68,7 +68,7 @@ speaker_id, speaker_name, speaker_mate = speaker_csv_read()
 
 system_prompt = None
 if speaker_name == 'zundamon':
-    system_prompt = '語尾に「のだ」をつけて喋って．'
+    system_prompt = '語尾に「のだ」をつけて喋って'
 elif speaker_name == 'joyman':
     system_prompt = 'お父さん口調で喋って'
 elif speaker_name == 'koharu':
@@ -235,15 +235,14 @@ elif current_status == 'wokeup' and times == 2:
             response = requests.post(url, data=speaker_data_str)
             message = response.json()['answer']
             print(message)
+            send_to_unity_and_wait(message)
+            ####################################################
+            #####          アバターが睡眠催促       ######
+            ####################################################
 
-                send_to_unity_and_wait(message)
-                ####################################################
-                #####          アバターが睡眠催促       ######
-                ####################################################
-
-                if is_runging_on_rasp:
-                    subprocess.run("echo 'standby 0' | cec-client -s", shell=True, stdout=subprocess.DEVNULL)
-                print("TV standby")
+            if is_runging_on_rasp:
+                subprocess.run("echo 'standby 0' | cec-client -s", shell=True, stdout=subprocess.DEVNULL)
+            print("TV standby")
 
 # 状態 wokeup,2,セットしたアラーム時間 日付またぎ(アラーム時間と現在時間を大小比較するため)
 elif current_status == 'wokeup' and times == 2 and current_alarm == 9999:
