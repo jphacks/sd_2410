@@ -20,15 +20,19 @@ SERP_API_KEY = settings.SERP_API_KEY
 search_tool = SerpAPIWrapper(serpapi_api_key=SERP_API_KEY)
 client = OpenAI(api_key=OPENAI_API_KEY)
 
-@api_view(['GET'])
+@api_view(['POST'])
 def welcome_back(request):
     try:
+        data = json.loads(request.body)
+        system_prompt = data.get("system_prompt")
+        mate = data.get("mate")
+
         # OpenAI APIの呼び出し
         completion = client.chat.completions.create(
                 model="gpt-4o-mini",
                 messages=[
-                    {"role": "system", "content": "あなたはお母さんです．あなたの子供はすでに働いているかもしれません．50文字で返答して．"},
-                    {"role": "user", "content": "子供が家に帰ってきました．「おかえり」のような短い言葉と，明日は何時に起きるのか聞いてください"}
+                    {"role": "system", "content": f"{system_prompt}．{mate}はすでに働いているかもしれません．"},
+                    {"role": "user", "content": f"{mate}が家に帰ってきました．「おかえり」のような短い言葉と，明日は何時に起きるのか聞いてください．50文字で返答して．"}
                 ]
         )
         # OpenAIからのレスポンスを取得

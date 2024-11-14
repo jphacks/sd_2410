@@ -21,17 +21,22 @@ def search(request):
     if request.method == 'POST':
         try:
             # JSONデータをパース
+            print(request.body)
             data = json.loads(request.body)
+            event = data.get('event')
+            mate = data.get('mate')
+            system_prompt = data.get('system_prompt')
+            
             response = search_tool.run("今日は何の日？か１つ教えてください。")
-            prompt = f"今日は何の日について教えて：{response}\nそれと今日の予定は以下です：{', '.join(data)}"
+            prompt = f"今日は何の日について教えて：{response}\nそれと今日の予定は以下です：{', '.join(event)}"
 
             try:
                 # OpenAI APIの呼び出し
                 completion = client.chat.completions.create(
                         model="gpt-4o-mini",
                         messages=[
-                            {"role": "system", "content": "あなたはお母さんで、朝息子への挨拶をする。ママみたいな口調で話して"},
-                            {"role": "user", "content": f"以下を基に息子に声をかけて（ため口でお母さんみたいに）。内容は短めで:{prompt}"}
+                            {"role": "system", "content": f"{system_prompt}、朝{mate}への挨拶をする。"},
+                            {"role": "user", "content": f"以下を基に{mate}に声をかけて。内容は短めで:{prompt}"}
                         ]
                 )
                 # OpenAIからのレスポンスを取得
