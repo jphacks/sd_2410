@@ -7,9 +7,9 @@ import dotenv
 import os
 import sys
 
-from Unity.google_calender_api import get_events, register_event
+from modules.google_calender_api import get_events, register_event
 from Unity.create_voice import create_voice
-from my_socket import socket_com # ソケット通信
+from modules.my_socket import socket_com # ソケット通信
 
 # 環境変数設定
 dotenv.load_dotenv()

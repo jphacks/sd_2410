@@ -4,6 +4,7 @@ from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
+from datetime import datetime, timedelta
 
 # Google Calendar APIのスコープ（読み書き権限）
 SCOPES = ["https://www.googleapis.com/auth/calendar"]
@@ -72,3 +73,46 @@ def get_events(start:str, end:str):
         scedule = event['start'].get('dateTime', event['start'].get('date'))
         print(scedule, event['summary'])
     return events
+
+from datetime import datetime, timedelta
+
+# カレンダーから今日の情報取得
+def get_events_today():
+    service = get_calendar_service()
+    
+    # 今日の日付の開始と終了のタイムスタンプを取得
+    today_start = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0).isoformat() + 'Z'
+    today_end = (datetime.now().replace(hour=23, minute=59, second=59, microsecond=999999)).isoformat() + 'Z'
+
+    # 今日のイベントを取得する
+    events_result = service.events().list(
+        calendarId='primary',
+        timeMin=today_start,
+        timeMax=today_end,
+        singleEvents=True,
+        orderBy='startTime'
+    ).execute()
+    
+    events = events_result.get('items', [])
+    if not events:
+        print('本日のイベントがありません')
+        return "本日のイベントがありません"
+    
+    # 今日の予定の「名前（summary）」だけをリストにして返す
+    event_names = [event['summary'] for event in events]
+    
+    return event_names
+
+# カレンダーから情報取得
+# def get_events_today():
+#     service = get_calendar_service()
+#     today_start = datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0).isoformat() + 'Z'
+#     today_end = datetime.datetime.now().replace(hour=23, minute=59, second=59, microsecond=0).isoformat() + 'Z'
+#     events = google_calender_api.get_events(today_start, today_end)
+#     event_list = []
+#     if not events:
+#         print('イベントが取得できませんでした')
+#     for event in events:
+#         scedule = event['start'].get('dateTime', event['start'].get('date'))
+#         print(scedule, event['summary'])
+#         event_list.append(event['summary'])

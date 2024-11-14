@@ -3,8 +3,6 @@ import numpy as np
 import os
 import subprocess
 
-os.chdir(os.path.dirname(os.path.abspath(__file__)))
-
 def take_photo():
   # 一時ファイルに画像を保存せずに取得するためのコマンド
   cmd = ['libcamera-still', '-n', '-o', '-', '--encoding', 'jpg']

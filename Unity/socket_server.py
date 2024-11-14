@@ -3,7 +3,7 @@ import os
 import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
-from sd_2410.my_socket import my_config
+from sd_2410.modules.my_socket import my_config
 
 def getString_socket():
     # ソケットを作成

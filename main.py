@@ -19,8 +19,9 @@ from modules import camera            # 写真を撮って保存
 from modules import BrightnessChecker # 部屋の明るさチェック
 from modules import rec               # レコード開始
 from modules.my_socket import socket_com # ソケット通信
-from bedtime_reminder import is_remind_time
-from my_socket import my_config
+from modules.my_socket import my_config
+from modules.bedtime_reminder import is_remind_time
+from modules.google_calender_api import get_events_today
 
 start = time.time()
 now = datetime.datetime.now() 
@@ -37,8 +38,6 @@ def status_csv_write(status, times, alarm, filename='status.csv'):
     updated_data = pd.concat([new_row, existing_data], ignore_index=True)
     # 上書き保存
     updated_data.to_csv(filename, index=False)
-
-
 
 def status_csv_read(filename='status.csv'):
     # CSVファイルの最初の1行だけを読み込む
@@ -79,7 +78,7 @@ elif current_status == 'wakeup_standby' and times >= 0 and current_alarm <= curr
     except:
         okita = response.json().split(":")[1].strip("}")
     print("\n起きた:1 寝てる:0 →", okita)  # 起きてた：1/寝てた：0
-    okita = "0" # デモ用(無条件で寝てると判断)
+    okita = "1" # デモ用(無条件で寝てると判断)
 
     if(okita == "0"):
         print("まだ寝てると判断")
@@ -97,7 +96,6 @@ elif current_status == 'wakeup_standby' and times >= 0 and current_alarm <= curr
         sent_to_unity_message = f"{times}:{wake_up_string}"
         print("wake_up_string", wake_up_string)
         send_to_unity_and_wait(sent_to_unity_message)
-
         ####################################################
         #####        Unity起こすずんだもん起動         ######
         ####################################################
@@ -120,28 +118,24 @@ elif current_status == 'wakeup_standby' and times >= 0 and current_alarm <= curr
             subprocess.run("echo 'on 0' | cec-client -s", shell=True, stdout=subprocess.DEVNULL)
         print("TV on")
 
-        status_csv_write('wokeup', 1, 9999) # 起きたのでcsv書き換え
-
         url = "http://127.0.0.1:8000/api/search/"
-        data = "{}" # api側はこのdataを使っていない．指定する必要は？
-        response = requests.post(url, data=data)
-        print("response", response.json())
-
+        data = get_events_today() # api側はこのdataを使っていない．指定する必要は？
+        response = requests.post(url, json=data)
+        print("response", response.json()['answer']) 
         send_to_unity_and_wait(response.json()['answer']) # Todo 今日の予定も？
-
         ####################################################
-        ##### 　　　Unityからうんちくずんだもん起動      ######
+        ##### 　　　Unityから蘊蓄/予定ずんだもん起動      ######
         ####################################################
 
         if is_runging_on_rasp:
             subprocess.run("echo 'standby 0' | cec-client -s", shell=True, stdout=subprocess.DEVNULL)
         print("TV off")
 
-        status_csv_write('wokeup', 2, 9999) # 起きたのでcsv書き換えて終了
+        status_csv_write('wokeup', 1, 9999) # 起きたのでcsv書き換えて終了
 
 
-# 状態 wokeup,2,9999 外出中
-elif current_status == 'wokeup' and times == 2 and current_alarm == 9999:
+# 状態 wokeup,1,9999 外出中
+elif current_status == 'wokeup' and times == 1 and current_alarm == 9999 and current_time > 1300: # 13時以降帰宅想定
 
     if is_runging_on_rasp:
         camera.take_photo() # take photo
@@ -169,7 +163,7 @@ elif current_status == 'wokeup' and times == 2 and current_alarm == 9999:
         response = requests.post(url)
         
         set_alarm = int(response.json()['time']) # 起床時間
-        status_csv_write('wokeup', 3, set_alarm)
+        status_csv_write('wokeup', 2, set_alarm)
         response_line = response.json()['response'] # 喋るセリフ
 
         send_to_unity_and_wait(response_line)
@@ -184,7 +178,7 @@ elif current_status == 'wokeup' and times == 2 and current_alarm == 9999:
         print("外出中")
 
 # 状態睡眠催促すべき状態
-elif current_status == 'wokeup' and times == 3:
+elif current_status == 'wokeup' and times == 2:
     alarm_time_str = str(current_alarm).zfill(4) # 0でパディング，例：600を0600に
     remind_list = [9, 8, 7, 6] # 何時間前にリマインドするかのリスト
 
@@ -210,5 +204,5 @@ elif current_status == 'wokeup' and times == 3:
 
 # 状態 wokeup,3,セットしたアラーム時間 日付またぎ(アラーム時間と現在時間を大小比較するため)
 elif current_status == 'wokeup' and times == 3 and current_alarm == 9999:
-    if "0000" <= current_time <= "0015": # 冗長
+    if "0000" <= current_time <= "0010": # 冗長
         status_csv_write('wakeup_standby', 0, current_alarm)

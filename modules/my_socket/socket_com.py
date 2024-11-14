@@ -1,6 +1,6 @@
 import socket
 import time
-from my_socket import my_config
+from modules.my_socket import my_config
 
 # サーバーを立てて、テキスト取得したらサーバー閉じる
 # def start_server_getString(port):

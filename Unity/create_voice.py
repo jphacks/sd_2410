@@ -1,14 +1,11 @@
 import requests
 import json
 import time
-
-
 import sys
 import os
 
 # 親ディレクトリをPythonのパスに追加
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
-from sd_2410.audio.register_time import register_and_responce
 from sd_2410.Unity.socket_server import getString_socket
 
 wav_path = "C:/Users/renta/Joyman/Assets/Audio/"

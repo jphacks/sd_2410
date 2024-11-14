@@ -23,6 +23,7 @@ def search(request):
             # JSONデータをパース
             data = json.loads(request.body)
             response = search_tool.run("今日は何の日？か１つ教えてください。")
+            prompt = f"今日は何の日について教えて：{response}\nそれと今日の予定は以下です：{', '.join(data)}"
 
             try:
                 # OpenAI APIの呼び出し
@@ -30,7 +31,7 @@ def search(request):
                         model="gpt-4o-mini",
                         messages=[
                             {"role": "system", "content": "あなたはお母さんで、朝息子への挨拶をする。ママみたいな口調で話して"},
-                            {"role": "user", "content": f"以下を基に息子に声をかけて（ため口でお母さんみたいに）。内容は短めで:{response}"}
+                            {"role": "user", "content": f"以下を基に息子に声をかけて（ため口でお母さんみたいに）。内容は短めで:{prompt}"}
                         ]
                 )
                 # OpenAIからのレスポンスを取得
