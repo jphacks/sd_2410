@@ -8,7 +8,7 @@ import os
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 def recording(
-    output_filename="audio/voice.wav",
+    output_filename="voice.wav",
     format=pyaudio.paInt16,
     channels=1,
     rate=44100,     # sampling rate1

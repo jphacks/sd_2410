@@ -28,7 +28,7 @@ def mp3_to_time(request):
     if request.method == 'POST':
         try:
 
-            file_path = os.path.join(os.path.dirname(settings.BASE_DIR), "audio", "voice.wav")
+            file_path = os.path.join(os.path.dirname(settings.BASE_DIR), "voice.wav")
 
             audio_file= open(file_path, "rb")
             transcription = client.audio.transcriptions.create(model="whisper-1", file=audio_file)

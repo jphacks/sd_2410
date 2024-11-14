@@ -4,7 +4,7 @@ __pycache__/
 *.env
 photo.jpg
 status.csv
-audio/voice.wav
+voice.wav
 test_code/
 credentials.json
 token.json

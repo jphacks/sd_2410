@@ -68,7 +68,6 @@ elif current_status == 'wakeup_standby' and times >= 0 and current_alarm <= curr
     if is_runging_on_rasp: 
         camera.take_photo() # take photo
 
-
     # 画像を読投げて起きてるか判断   
     url = "http://127.0.0.1:8000/api/image_openai/"
     response = requests.post(url)
@@ -147,13 +146,11 @@ elif current_status == 'wokeup' and times == 1 and current_alarm == 9999 and cur
             time.sleep(0.5) # テレビつくのを待つ(デモ用に短く設定)
         print("TV on")
 
-        # message = "おかえり、明日は何時に起こせばいいのだ？"
         url = "http://127.0.0.1:8000/api/welcome_back/"
         message = requests.get(url).json()['answer']
-
-
+        # message = "おかえり、明日は何時に起こせばいいのだ？" # local用
+        
         send_to_unity_and_wait(message)
-
         ####################################################
         #####         Unityから起床時間の質問        ######
         ####################################################
