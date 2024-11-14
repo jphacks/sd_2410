@@ -33,6 +33,7 @@ from my_socket import my_config
 start = time.time()
 now = datetime.datetime.now() 
 current_time = int(now.strftime("%H%M"))  # 現在時間取得 1713
+is_runging_on_rasp = False # ラズパイで動かす時はTrue，ローカルでテストするときはFalse
 
 
 def status_csv_write(status, times, alarm, filename='modules/status.csv'):
@@ -72,7 +73,9 @@ if current_status == 'wakeup_standby' and times == 0 and current_alarm > current
 # 状態 wakeup_standby,0~n,次のアラーム時間 起床すべき時間
 elif current_status == 'wakeup_standby' and times >= 0 and current_alarm <= current_time:
     okita = "0" # 初期化
-    camera.take_photo() # take photo
+    if is_runging_on_rasp: 
+        camera.take_photo() # take photo
+
 
     # 画像を読投げて起きてるか判断   
     url = "http://127.0.0.1:8000/api/image_openai/"
@@ -87,9 +90,10 @@ elif current_status == 'wakeup_standby' and times >= 0 and current_alarm <= curr
 
     if(okita == "0"):
         print("まだ寝てると判断")
-        subprocess.run("echo 'on 0' | cec-client -s", shell=True, stdout=subprocess.DEVNULL)
+        if is_runging_on_rasp:
+            subprocess.run("echo 'on 0' | cec-client -s", shell=True, stdout=subprocess.DEVNULL)
+            time.sleep(5)
         print("TV on")
-        time.sleep(5)
 
         times += 1
 
@@ -106,7 +110,8 @@ elif current_status == 'wakeup_standby' and times >= 0 and current_alarm <= curr
         #####        起こすずんだもん起動         ######
         ####################################################
 
-        # subprocess.run("echo 'standby 0' | cec-client -s", shell=True, stdout=subprocess.DEVNULL)
+        if is_runging_on_rasp:
+            subprocess.run("echo 'standby 0' | cec-client -s", shell=True, stdout=subprocess.DEVNULL)
         print("TV off")
 
         # csv書き換え
@@ -119,7 +124,8 @@ elif current_status == 'wakeup_standby' and times >= 0 and current_alarm <= curr
 
     elif(okita == "1"):
         print("起きたと判断")
-        # subprocess.run("echo 'on 0' | cec-client -s", shell=True, stdout=subprocess.DEVNULL)
+        if is_runging_on_rasp:
+            subprocess.run("echo 'on 0' | cec-client -s", shell=True, stdout=subprocess.DEVNULL)
         print("TV on")
 
         status_csv_write('wokeup', 1, 9999) # 起きたのでcsv書き換え
@@ -135,7 +141,8 @@ elif current_status == 'wakeup_standby' and times >= 0 and current_alarm <= curr
         ##### 　　　Unityからうんちくずんだもん起動      ######
         ####################################################
 
-        # subprocess.run("echo 'standby 0' | cec-client -s", shell=True, stdout=subprocess.DEVNULL)
+        if is_runging_on_rasp:
+            subprocess.run("echo 'standby 0' | cec-client -s", shell=True, stdout=subprocess.DEVNULL)
         print("TV off")
 
         status_csv_write('wokeup', 2, 9999) # 起きたのでcsv書き換えて終了
@@ -144,13 +151,15 @@ elif current_status == 'wakeup_standby' and times >= 0 and current_alarm <= curr
 # 状態 wokeup,2,9999 外出中
 elif current_status == 'wokeup' and times == 2 and current_alarm == 9999:
 
-    camera.take_photo() # take photo
+    if is_runging_on_rasp:
+        camera.take_photo() # take photo
     # check goout/inhome
     if BrightnessChecker.homeChecker(): # true -> in home
     # if True: # デモ用(無条件で帰宅状態に)
-        # subprocess.run("echo 'on 0' | cec-client -s", shell=True, stdout=subprocess.DEVNULL)
+        if is_runging_on_rasp:
+            subprocess.run("echo 'on 0' | cec-client -s", shell=True, stdout=subprocess.DEVNULL)
+            time.sleep(0.5) # テレビつくのを待つ(デモ用に短く設定)
         print("TV on")
-        time.sleep(0.5) # テレビつくのを待つ(デモ用に短く設定)
 
         # message = "おかえり、明日は何時に起こせばいいのだ？"
         url = "http://127.0.0.1:8000/api/welcome_back/"
@@ -176,7 +185,8 @@ elif current_status == 'wokeup' and times == 2 and current_alarm == 9999:
         #####          Unityから起床時間の復唱       ######
         ####################################################
 
-        # subprocess.run("echo 'standby 0' | cec-client -s", shell=True, stdout=subprocess.DEVNULL)
+        if is_runging_on_rasp:
+            subprocess.run("echo 'standby 0' | cec-client -s", shell=True, stdout=subprocess.DEVNULL)
         print("TV standby")
     else:
         print("外出中")
@@ -184,11 +194,12 @@ elif current_status == 'wokeup' and times == 2 and current_alarm == 9999:
 # 状態睡眠催促すべき状態
 elif current_status == 'wokeup' and times == 3:
     alarm_time_str = str(current_alarm).zfill(4) # 0でパディング，例：600を0600に
-    remind_list = [9, 8, 7, 6]
+    remind_list = [9, 8, 7, 6] # 何時間前にリマインドするかのリスト
 
     for sleep_duration in remind_list:
-        if is_remind_time(alarm_time_str, sleep_duration, 5, "2300"):
-            # subprocess.run("echo 'on 0' | cec-client -s", shell=True, stdout=subprocess.DEVNULL)
+        if is_remind_time(alarm_time_str, sleep_duration, 5, "2300"): # 実際に使うときは2300を消す
+            if is_runging_on_rasp:
+                subprocess.run("echo 'on 0' | cec-client -s", shell=True, stdout=subprocess.DEVNULL)
             print("TV on")
 
             url = f"http://127.0.0.1:8000/api/sleep_remind/?alarm_time={alarm_time_str}&sleep_duration={sleep_duration}"
@@ -201,7 +212,8 @@ elif current_status == 'wokeup' and times == 3:
             #####          アバターが睡眠催促       ######
             ####################################################
 
-            # subprocess.run("echo 'standby 0' | cec-client -s", shell=True, stdout=subprocess.DEVNULL)
+            if is_runging_on_rasp:
+                subprocess.run("echo 'standby 0' | cec-client -s", shell=True, stdout=subprocess.DEVNULL)
             print("TV standby")
 
 # 状態 wokeup,3,セットしたアラーム時間 日付またぎ(アラーム時間と現在時間を大小比較するため)
