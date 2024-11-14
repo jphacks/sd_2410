@@ -20,12 +20,13 @@ from modules import BrightnessChecker # 部屋の明るさチェック
 from modules import rec               # レコード開始
 from modules.my_socket import socket_com # ソケット通信
 from bedtime_reminder import is_remind_time
+from my_socket import my_config
 
 start = time.time()
 now = datetime.datetime.now() 
 current_time = int(now.strftime("%H%M"))  # 現在時間取得 1713
+is_runging_on_rasp = False # ラズパイで動かす時はTrue，ローカルでテストするときはFalse
 
-sleep_duration = 7  # 何時間寝たいか
 
 def status_csv_write(status, times, alarm, filename='status.csv'):
     # 先頭に追加する行をデータフレームで作成
@@ -50,6 +51,11 @@ def status_csv_read(filename='status.csv'):
     
     return current_status, times, current_alarm
 
+def send_to_unity_and_wait(message):
+        socket_com.start_client_sendString(message, port=my_config.UNITY_PORT) 
+        return socket_com.start_server_getString(port=my_config.RASPBERRYPI_PORT) # サーバー立てて文字取得まで待機
+
+
 # ステータス確認
 current_status, times, current_alarm = status_csv_read()
 
@@ -60,7 +66,9 @@ if current_status == 'wakeup_standby' and times == 0 and current_alarm > current
 # 状態 wakeup_standby,0~n,次のアラーム時間 起床すべき時間
 elif current_status == 'wakeup_standby' and times >= 0 and current_alarm <= current_time:
     okita = "0" # 初期化
-    camera.take_photo() # take photo
+    if is_runging_on_rasp: 
+        camera.take_photo() # take photo
+
 
     # 画像を読投げて起きてるか判断   
     url = "http://127.0.0.1:8000/api/image_openai/"
@@ -75,26 +83,30 @@ elif current_status == 'wakeup_standby' and times >= 0 and current_alarm <= curr
 
     if(okita == "0"):
         print("まだ寝てると判断")
-        subprocess.run("echo 'on 0' | cec-client -s", shell=True, stdout=subprocess.DEVNULL)
+        if is_runging_on_rasp:
+            subprocess.run("echo 'on 0' | cec-client -s", shell=True, stdout=subprocess.DEVNULL)
+            time.sleep(5)
         print("TV on")
-        time.sleep(5)
+
+        times += 1
 
         # -スヌーズ機能用-----------------------
         url = f"http://127.0.0.1:8000/api/wake_up/{times}/"
         response = requests.post(url)
         wake_up_string = response.json().get('answer')
+        sent_to_unity_message = f"{times}:{wake_up_string}"
         print("wake_up_string", wake_up_string)
-        socket_com.start_client_sendString(wake_up_string) 
+        send_to_unity_and_wait(sent_to_unity_message)
+
         ####################################################
         #####        Unity起こすずんだもん起動         ######
         ####################################################
-        socket_com.start_server_getString(65432) # サーバー立てて文字取得まで待機
 
-        subprocess.run("echo 'standby 0' | cec-client -s", shell=True, stdout=subprocess.DEVNULL)
+        if is_runging_on_rasp:
+            subprocess.run("echo 'standby 0' | cec-client -s", shell=True, stdout=subprocess.DEVNULL)
         print("TV off")
 
         # csv書き換え
-        times += 1
         status_csv_write('wakeup_standby', times, current_time +5)
 
         #30分間起きなかったら、slackに寝てる写真が送られる。
@@ -104,21 +116,25 @@ elif current_status == 'wakeup_standby' and times >= 0 and current_alarm <= curr
 
     elif(okita == "1"):
         print("起きたと判断")
-        subprocess.run("echo 'on 0' | cec-client -s", shell=True, stdout=subprocess.DEVNULL)
+        if is_runging_on_rasp:
+            subprocess.run("echo 'on 0' | cec-client -s", shell=True, stdout=subprocess.DEVNULL)
         print("TV on")
 
         status_csv_write('wokeup', 1, 9999) # 起きたのでcsv書き換え
 
-        url = "http://127.0.0.1:8000/api/search_today/"
-        response = requests.get(url)
+        url = "http://127.0.0.1:8000/api/search/"
+        data = "{}" # api側はこのdataを使っていない．指定する必要は？
+        response = requests.post(url, data=data)
         print("response", response.json())
-        socket_com.start_client_sendString(response) # Todo 今日の予定も？
+
+        send_to_unity_and_wait(response.json()['answer']) # Todo 今日の予定も？
+
         ####################################################
         ##### 　　　Unityからうんちくずんだもん起動      ######
         ####################################################
-        socket_com.start_server_getString(65432) # サーバー立てて文字取得まで待機
 
-        subprocess.run("echo 'standby 0' | cec-client -s", shell=True, stdout=subprocess.DEVNULL)
+        if is_runging_on_rasp:
+            subprocess.run("echo 'standby 0' | cec-client -s", shell=True, stdout=subprocess.DEVNULL)
         print("TV off")
 
         status_csv_write('wokeup', 2, 9999) # 起きたのでcsv書き換えて終了
@@ -127,19 +143,26 @@ elif current_status == 'wakeup_standby' and times >= 0 and current_alarm <= curr
 # 状態 wokeup,2,9999 外出中
 elif current_status == 'wokeup' and times == 2 and current_alarm == 9999:
 
-    camera.take_photo() # take photo
+    if is_runging_on_rasp:
+        camera.take_photo() # take photo
     # check goout/inhome
     if BrightnessChecker.homeChecker(): # true -> in home
     # if True: # デモ用(無条件で帰宅状態に)
-        subprocess.run("echo 'on 0' | cec-client -s", shell=True, stdout=subprocess.DEVNULL)
+        if is_runging_on_rasp:
+            subprocess.run("echo 'on 0' | cec-client -s", shell=True, stdout=subprocess.DEVNULL)
+            time.sleep(0.5) # テレビつくのを待つ(デモ用に短く設定)
         print("TV on")
-        time.sleep(0.5) # テレビつくのを待つ(デモ用に短く設定)
 
-        socket_com.start_client_sendString("おかえり、明日は何時に起こせばいいのだ？") # サーバー接続して文字送信
+        # message = "おかえり、明日は何時に起こせばいいのだ？"
+        url = "http://127.0.0.1:8000/api/welcome_back/"
+        message = requests.get(url).json()['answer']
+
+
+        send_to_unity_and_wait(message)
+
         ####################################################
         #####         Unityから起床時間の質問        ######
         ####################################################
-        socket_com.start_server_getString(65432) # サーバー立てて文字取得まで待機
 
         rec.recording()                     # recordingスタート
         url = "http://127.0.0.1:8000/api/mp3_openai/"
@@ -149,13 +172,13 @@ elif current_status == 'wokeup' and times == 2 and current_alarm == 9999:
         status_csv_write('wokeup', 3, set_alarm)
         response_line = response.json()['response'] # 喋るセリフ
 
-        socket_com.start_client_sendString(response_line) # サーバー接続して文字送信
+        send_to_unity_and_wait(response_line)
         ####################################################
         #####          Unityから起床時間の復唱       ######
         ####################################################
-        socket_com.start_server_getString(65432) # サーバー立てて文字取得まで待機
 
-        subprocess.run("echo 'standby 0' | cec-client -s", shell=True, stdout=subprocess.DEVNULL)
+        if is_runging_on_rasp:
+            subprocess.run("echo 'standby 0' | cec-client -s", shell=True, stdout=subprocess.DEVNULL)
         print("TV standby")
     else:
         print("外出中")
@@ -163,10 +186,27 @@ elif current_status == 'wokeup' and times == 2 and current_alarm == 9999:
 # 状態睡眠催促すべき状態
 elif current_status == 'wokeup' and times == 3:
     alarm_time_str = str(current_alarm).zfill(4) # 0でパディング，例：600を0600に
-    if is_remind_time(alarm_time_str, sleep_duration, 5, "2300"):
-        url = f"http://127.0.0.1:8000/api/sleep_remind/?alarm_time={alarm_time_str}&sleep_duration={sleep_duration}"
-        response = requests.get(url)
-        print(response.json()["answer"])
+    remind_list = [9, 8, 7, 6] # 何時間前にリマインドするかのリスト
+
+    for sleep_duration in remind_list:
+        if is_remind_time(alarm_time_str, sleep_duration, 5, "2300"): # 実際に使うときは2300を消す
+            if is_runging_on_rasp:
+                subprocess.run("echo 'on 0' | cec-client -s", shell=True, stdout=subprocess.DEVNULL)
+            print("TV on")
+
+            url = f"http://127.0.0.1:8000/api/sleep_remind/?alarm_time={alarm_time_str}&sleep_duration={sleep_duration}"
+            response = requests.get(url)
+            message = response.json()['answer']
+            print(message)
+
+            send_to_unity_and_wait(message)
+            ####################################################
+            #####          アバターが睡眠催促       ######
+            ####################################################
+
+            if is_runging_on_rasp:
+                subprocess.run("echo 'standby 0' | cec-client -s", shell=True, stdout=subprocess.DEVNULL)
+            print("TV standby")
 
 # 状態 wokeup,3,セットしたアラーム時間 日付またぎ(アラーム時間と現在時間を大小比較するため)
 elif current_status == 'wokeup' and times == 3 and current_alarm == 9999:

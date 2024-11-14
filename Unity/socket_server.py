@@ -1,4 +1,9 @@
 import socket
+import os
+import sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
+
+from sd_2410.my_socket import my_config
 
 def getString_socket():
     # ソケットを作成
@@ -7,7 +12,7 @@ def getString_socket():
     # バインドするアドレスとポート
     # host = socket.gethostbyname(socket.gethostname())  # localhost
     host = "0.0.0.0"
-    port = 65432
+    port = my_config.UNITY_PORT
     server_socket.bind((host, port))
 
     # クライアントからの接続を待機
