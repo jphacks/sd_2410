@@ -72,9 +72,9 @@ if speaker_name == 'zundamon':
 elif speaker_name == 'joyman':
     system_prompt = 'お父さん口調で喋って'
 elif speaker_name == 'koharu':
-    system_prompt = ''
-elif speaker_name == '':
-    system_prompt = ''
+    system_prompt = '女子高生の口調で喋って'
+elif speaker_name == 'ikemen':
+    system_prompt = 'イケメン風の口調でしゃべって'
 
 speaker_data = {
     'system_prompt' : system_prompt,
