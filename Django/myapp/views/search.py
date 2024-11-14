@@ -22,7 +22,8 @@ def search(request):
         try:
             # JSONデータをパース
             print(request.body)
-            data = json.loads(request.body)
+            # data = json.loads(request.body)
+            data = request.body
             event = data.get('event')
             mate = data.get('mate')
             system_prompt = data.get('system_prompt')
