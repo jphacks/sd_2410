@@ -57,7 +57,8 @@ def speaker_csv_read(filename='speaker.csv'):
     speaker_mate = first_row['speaker_mate'].iloc[0]
     return speaker_id, speaker_name, speaker_mate
 
-def send_to_unity_and_wait(message):
+def send_to_unity_and_wait(message, times=-1):
+        message = f"{times}:{speaker_id}:{message}"
         socket_com.start_client_sendString(message, port=my_config.UNITY_PORT) 
         return socket_com.start_server_getString(port=my_config.RASPBERRYPI_PORT) # サーバー立てて文字取得まで待機
 
@@ -111,7 +112,7 @@ elif current_status == 'wakeup_standby' and times >= 0 and current_alarm <= curr
     except:
         okita = response.json().split(":")[1].strip("}")
     print("\n起きた:1 寝てる:0 →", okita)  # 起きてた：1/寝てた：0
-    okita = "1" # デモ用(無条件で寝てると判断)
+    okita = "0" # デモ用(無条件で寝てると判断)
 
     if(okita == "0"):
         print("まだ寝てると判断")
@@ -127,9 +128,8 @@ elif current_status == 'wakeup_standby' and times >= 0 and current_alarm <= curr
         response = requests.post(url, data=speaker_data_str)
 
         wake_up_string = response.json().get('answer')
-        sent_to_unity_message = f"{times}:{wake_up_string}"
         print("wake_up_string", wake_up_string)
-        send_to_unity_and_wait(sent_to_unity_message)
+        send_to_unity_and_wait(wake_up_string, times=times)
         ####################################################
         #####        Unity起こすずんだもん起動         ######
         ####################################################
@@ -152,11 +152,13 @@ elif current_status == 'wakeup_standby' and times >= 0 and current_alarm <= curr
             subprocess.run("echo 'on 0' | cec-client -s", shell=True, stdout=subprocess.DEVNULL)
         print("TV on")
 
-        url = "http://127.0.0.1:8000/api/search/"
+        url = "http://127.0.0.1:8000/api/search/?"
         event_data = get_events_today() # api側はこのdataを使っていない．指定する必要は？
         speaker_data['event'] = "".join(event_data)
+
+        print(speaker_data)
         
-        response = requests.post(url, data=speaker_data)
+        response = requests.post(url, json=json.dumps(speaker_data))
         print("response", response.json()['answer']) 
         send_to_unity_and_wait(response.json()['answer']) 
         ####################################################

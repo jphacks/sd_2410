@@ -16,17 +16,16 @@ SERP_API_KEY = settings.SERP_API_KEY
 search_tool = SerpAPIWrapper(serpapi_api_key=SERP_API_KEY)
 client = OpenAI(api_key=OPENAI_API_KEY)
 
-@api_view(['GET', 'POST'])
+@api_view(['GET'])
 def search(request):
-    if request.method == 'POST':
+    if request.method == 'GET':
         try:
             # JSONデータをパース
-            print(request.body)
-            # data = json.loads(request.body)
-            data = request.body
+            data = json.loads(request.body)
             event = data.get('event')
             mate = data.get('mate')
             system_prompt = data.get('system_prompt')
+            print(mate)
             
             response = search_tool.run("今日は何の日？か１つ教えてください。")
             prompt = f"今日は何の日について教えて：{response}\nそれと今日の予定は以下です：{', '.join(event)}"
