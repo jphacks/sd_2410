@@ -19,16 +19,14 @@ def is_remind_time(alarm_time_str, hours_before, th, now_str=None):
         now_minute = int(now_str[2:])
         now = now.replace(hour=now_hour, minute=now_minute) # テスト用
 
-
     alarm_datetime = now.replace(hour=alarm_hour, minute=alarm_minute) + timedelta(days=1)
     
     # アラーム時間のhours_before時間前を計算
     reminder_time = alarm_datetime - timedelta(hours=hours_before)
 
-    
-    print("now is :", now)
-    print("alarm_time is :", alarm_datetime)
-    print("reminder_time is :", reminder_time)
+    # print("now is :", now)
+    # print("alarm_time is :", alarm_datetime)
+    # print("reminder_time is :", reminder_time)
 
     start_time = now - timedelta(minutes=th)
     end_time = now + timedelta(minutes=th)
