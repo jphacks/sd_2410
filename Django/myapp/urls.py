@@ -7,6 +7,7 @@ from .views.search import search
 from .views.send_image import send_image_with_text
 from .views.wake_up import wake_up
 
+# URL, importした関数名, メモ
 urlpatterns = [
     path('openai-api/', openai_api_view, name='openai_api'),
     path('call_openai/', call_openai_api, name='call_openai_api'),

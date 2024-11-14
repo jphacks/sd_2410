@@ -10,30 +10,23 @@ import requests
 
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
-
-# /home/izumi/Desktop/git/sd_2410/my_socket/my_config.py
-# ソケット通信のIPアドレス設定忘れずに
-
-# VPNのIPアドレス設定(ToDo)
-# /home/izumi/Desktop/git/sd_2410/Unity/socket_send_msg.py
-# /home/izumi/Desktop/git/sd_2410/my_socket/my_config.py
-
 # デモ用 テレビ付けるのに7sかかるため、最初に起動
 # subprocess.run("echo 'on 0' | cec-client -s", shell=True, stdout=subprocess.DEVNULL)
 # print("TV on")
 
 # 作成したモジュール(Todo モジュールファイルへの移動)
-import camera            # 写真を撮って保存
-import BrightnessChecker # 部屋の明るさチェック
-import rec               # レコード開始
-from my_socket import socket_com # ソケット通信
+from modules import camera            # 写真を撮って保存
+from modules import BrightnessChecker # 部屋の明るさチェック
+from modules import rec               # レコード開始
+from modules.my_socket import socket_com # ソケット通信
+
 
 start = time.time()
 now = datetime.datetime.now() 
 current_time = int(now.strftime("%H%M"))  # 現在時間取得 1713
 
 
-def status_csv_write(status, times, alarm, filename='modules/status.csv'):
+def status_csv_write(status, times, alarm, filename='status.csv'):
     # 先頭に追加する行をデータフレームで作成
     new_row = pd.DataFrame([[status, times, alarm]], columns=['status', 'times', 'alarm'])
     # 既存のCSVファイルを読み込み
@@ -44,7 +37,8 @@ def status_csv_write(status, times, alarm, filename='modules/status.csv'):
     updated_data.to_csv(filename, index=False)
 
 
-def status_csv_read(filename='modules/status.csv'):
+
+def status_csv_read(filename='status.csv'):
     # CSVファイルの最初の1行だけを読み込む
     first_row = pd.read_csv(filename, nrows=1)
     
@@ -84,15 +78,14 @@ elif current_status == 'wakeup_standby' and times >= 0 and current_alarm <= curr
         print("TV on")
         time.sleep(5)
 
-        #TKD-スヌーズ機能用-----------------------
+        # -スヌーズ機能用-----------------------
         url = f"http://127.0.0.1:8000/api/wake_up/{times}/"
         response = requests.post(url)
-        # print("response", response)
         wake_up_string = response.json().get('answer')
-        # print("wake_up_string", wake_up_string)
+        print("wake_up_string", wake_up_string)
         socket_com.start_client_sendString(wake_up_string) 
         ####################################################
-        #####        起こすずんだもん起動         ######
+        #####        Unity起こすずんだもん起動         ######
         ####################################################
         socket_com.start_server_getString(65432) # サーバー立てて文字取得まで待機
 

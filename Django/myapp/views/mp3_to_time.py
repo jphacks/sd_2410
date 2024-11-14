@@ -34,7 +34,7 @@ def mp3_to_time(request):
             transcription = client.audio.transcriptions.create(model="whisper-1", file=audio_file)
             # return JsonResponse({'transcription': transcription.text})
             response = client.chat.completions.create(
-                model="gpt-4",
+                model="gpt-4o-mini",
                 messages=[
                     description_message,
                     {"role": "user", "content": transcription.text}

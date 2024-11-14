@@ -2,8 +2,6 @@ import pyaudio
 import wave
 import numpy as np
 import os
-# sudo apt install portaudio19-dev
-# pip isntall pyaudio
 
 # base_path = "/home/izumi/Desktop/git/sd_2410/"
 # os.chdir(base_path)
