@@ -3,12 +3,8 @@ import wave
 import numpy as np
 import os
 
-# base_path = "/home/izumi/Desktop/git/sd_2410/"
-# os.chdir(base_path)
-os.chdir(os.path.dirname(os.path.abspath(__file__)))
-
 def recording(
-    output_filename="voice.wav",
+    output_filename="modules/voice.wav",
     format=pyaudio.paInt16,
     channels=1,
     rate=44100,     # sampling rate1

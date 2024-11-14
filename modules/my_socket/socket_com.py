@@ -3,10 +3,12 @@ import time
 from modules.my_socket import my_config
 
 # サーバーを立てて、テキスト取得したらサーバー閉じる
-# def start_server_getString(port):
 def start_server_getString(port=my_config.RASPBERRYPI_PORT):
-    # server_socket = socket.socket(socket.AF_INET, socket.SO_VM_SOCKETS_BUFFER_MIN_SIZE)
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+    # ポートの再利用オプションを設定
+    server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+
     server_socket.bind(("0.0.0.0", port))
     server_socket.listen()
     print("Server started, waiting for connections...")

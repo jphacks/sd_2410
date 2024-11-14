@@ -6,17 +6,22 @@ from datetime import datetime
 import dotenv
 import os
 import sys
+from time import sleep
 
 from modules.google_calender_api import get_events, register_event
-from Unity.create_voice import create_voice
 from modules.my_socket import socket_com # ソケット通信
+from modules import rec    
+
+def send_to_unity_and_wait(message):
+    socket_com.start_client_sendString(message) 
+    return socket_com.start_server_getString() # サーバー立てて文字取得まで待機
 
 # 環境変数設定
 dotenv.load_dotenv()
 OPEN_AI_API=os.environ.get("OPEN_AI_API")
 openai.api_key = OPEN_AI_API
 
-WAKE_WORD = "おい"  # 任意のウェイクワードに変更可能
+WAKE_WORD = ["おい", "お", "い"] # 任意のウェイクワードに変更可能
 
 get_function_description={
     "name":"get_events",
@@ -155,35 +160,23 @@ def detect_wake_word():
         print(f"Recognized text: {transcription}")
 
         # ウェイクワードが音声に含まれているかをチェック
-        if WAKE_WORD in transcription:
+        if any(word in transcription for word in WAKE_WORD):
             print("ウェイクワードが検出されました！")
             # sys.exit(0) # 確認用
 
-            #音声ファイルを保存して再生(絶対パス)
-            #コピー元ファイルをバイナリで読み込み、コピー先ファイルに書き込む
-            with open( "sd_2410/modules/first_response.wav", "rb") as src_file:
-                data = src_file.read()
-            with open("C:/Users/renta/Joyman/Assets/Audio/abando.wav", "wb") as dest_file:
-                dest_file.write(data)
-                # 文字ファイルを保存(絶対パス)
-            with open("C:/Users/renta/Joyman/Assets/Text/responce.txt", "w",encoding="utf-8") as f:
-                f.write("どうしたのだ？")
+            socket_com.start_client_sendString("どうしたのだ") # 変更
+            sleep(2)
+            rec.recording() # recordingスタート
 
-            with microphone as source:
+            with sr.AudioFile("modules/voice.wav") as source:
                 audio = recognizer.listen(source)  # 再度音声を取得
             user_prompt = recognizer.recognize_google(audio, language='ja-JP')
-
-            user_prompt = transcription
+            print(f"Recognized text: {user_prompt}")
 
             # OpenAIからの応答を取得
             response = get_openai_response(user_prompt)
             if response:
-                # create_voice(response) # unity PCで行うため以下に置き換え
-                socket_com.start_client_sendString(response)
-                ##############################################################
-                ########            ソケット通信            ################
-                ##############################################################
-                socket_com.start_server_getString(65432)
+                send_to_unity_and_wait(response)
             else:
                 print("応答を取得できませんでした。")
             return True

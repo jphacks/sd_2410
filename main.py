@@ -4,6 +4,7 @@ import os
 import subprocess
 import pandas as pd
 import requests
+import cv2
 
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
@@ -17,7 +18,6 @@ from modules import camera            # 写真を撮って保存
 from modules import BrightnessChecker # 部屋の明るさチェック
 from modules import rec               # レコード開始
 from modules.my_socket import socket_com # ソケット通信
-from modules.my_socket import my_config
 from modules.bedtime_reminder import is_remind_time
 from modules.google_calender_api import get_events_today
 
@@ -47,8 +47,8 @@ def status_csv_read(filename='status.csv'):
     return current_status, times, current_alarm
 
 def send_to_unity_and_wait(message):
-        socket_com.start_client_sendString(message, port=my_config.UNITY_PORT) 
-        return socket_com.start_server_getString(port=my_config.RASPBERRYPI_PORT) # サーバー立てて文字取得まで待機
+    socket_com.start_client_sendString(message) 
+    return socket_com.start_server_getString() # サーバー立てて文字取得まで待機
 
 # ステータス確認
 current_status, times, current_alarm = status_csv_read()
@@ -57,13 +57,13 @@ current_status, times, current_alarm = status_csv_read()
 current_status, times, current_alarm, current_time= 'wakeup_standby', 0,  700, 701  # 起床フェーズ (何もしない)
 current_status, times, current_alarm, current_time= 'wakeup_standby', 1,  705, 706  # まだ寝てる 　
 current_status, times, current_alarm, current_time= 'wakeup_standby', 5,  730, 731  # まだ寝てる slack投稿フェーズ
-# current_status, times, current_alarm, current_time= 'wokeup'        , 1, 9999, 1000 # 起床蘊蓄も終了(帰宅待機)
-# current_status, times, current_alarm, current_time= 'wokeup'        , 1, 9999, 1700 # 帰宅判断1回目 (部屋明るく)
-# current_status, times, current_alarm, current_time= 'wokeup'        , 2,  700, 1700 # アラームセット完了 (何もしない)
-# current_status, times, current_alarm, current_time= 'wokeup'        , 2,  700, 2350 # 睡眠催促
+current_status, times, current_alarm, current_time= 'wokeup'        , 1, 9999, 1000 # 起床蘊蓄も終了(帰宅待機)
+current_status, times, current_alarm, current_time= 'wokeup'        , 1, 9999, 1700 # 帰宅判断1回目 (部屋明るく)
+current_status, times, current_alarm, current_time= 'wokeup'        , 2,  700, 1800 # アラームセット完了 (何もしない)
+current_status, times, current_alarm, current_time= 'wokeup'        , 2,  700, 2200 # 睡眠催促
 # current_status, times, current_alarm, current_time= 'wakeup_standby', 2,  700, 5    # 日付跨ぎ 
 
-# send_to_unity_and_wait("今日は、シマエナガの日だよ。みんなで北海道行こう")
+# send_to_unity_and_wait("リーチ！一発！ツモ！")
 # time.sleep(10)
 ######################################  DEBUG  ######################################
 
@@ -77,7 +77,7 @@ elif current_status == 'wakeup_standby' and times >= 0 and current_alarm <= curr
     if is_runging_on_rasp: 
         camera.take_photo() # take photo
 
-    # 画像を読投げて起きてるか判断   
+    # 画像を投げて起きてるか判断   
     url = "http://127.0.0.1:8000/api/image_openai/"
     response = requests.post(url)
     print("response", response.json()) # Debug
@@ -86,7 +86,7 @@ elif current_status == 'wakeup_standby' and times >= 0 and current_alarm <= curr
     except:
         okita = response.json().split(":")[1].strip("}")
     print("\n起きた:1 寝てる:0 →", okita)  # 起きてた：1/寝てた：0
-    # okita = "0" # デモ用(無条件で寝てると判断)
+    okita = "0" # デモ用(無条件で寝てると判断)
 
     if(okita == "0"):
         print("まだ寝てると判断")
@@ -119,6 +119,7 @@ elif current_status == 'wakeup_standby' and times >= 0 and current_alarm <= curr
         if times == 6:
             url = "http://127.0.0.1:8000/api/send_image/"
             response = requests.get(url)
+            print("slackに画像を投稿しました\n")
 
     elif(okita == "1"):
         print("起きたと判断")
@@ -167,7 +168,7 @@ elif current_status == 'wokeup' and times == 1 and current_alarm == 9999 and cur
         rec.recording()                     # recordingスタート
         url = "http://127.0.0.1:8000/api/mp3_openai/"
         response = requests.post(url)
-        
+        print(response.json())
         set_alarm = int(response.json()['time']) # 起床時間
         status_csv_write('wokeup', 2, set_alarm)
         response_line = response.json()['response'] # 喋るセリフ
@@ -189,24 +190,27 @@ elif current_status == 'wokeup' and times == 2:
     remind_list = [9, 8, 7, 6] # 何時間前にリマインドするかのリスト
 
     for sleep_duration in remind_list:
-        if is_remind_time(alarm_time_str, sleep_duration, 5, "2300"): # 実際に使うときは2300を消す
-            if is_runging_on_rasp:
-                subprocess.run("echo 'on 0' | cec-client -s", shell=True, stdout=subprocess.DEVNULL)
-            print("TV on")
+        if is_remind_time(alarm_time_str, sleep_duration, 5, str(current_time)):  
 
-            url = f"http://127.0.0.1:8000/api/sleep_remind/?alarm_time={alarm_time_str}&sleep_duration={sleep_duration}"
-            response = requests.get(url)
-            message = response.json()['answer']
-            print(message)
+            camera.take_photo() # 寝てるかどうかの判断のための写真
+            if BrightnessChecker.homeChecker(): # true -> in home
+                if is_runging_on_rasp:
+                    subprocess.run("echo 'on 0' | cec-client -s", shell=True, stdout=subprocess.DEVNULL)
+                print("TV on")
 
-            send_to_unity_and_wait(message)
-            ####################################################
-            #####          アバターが睡眠催促       ######
-            ####################################################
+                url = f"http://127.0.0.1:8000/api/sleep_remind/?alarm_time={alarm_time_str}&sleep_duration={sleep_duration}"
+                response = requests.get(url)
+                message = response.json()['answer']
+                print(message)
 
-            if is_runging_on_rasp:
-                subprocess.run("echo 'standby 0' | cec-client -s", shell=True, stdout=subprocess.DEVNULL)
-            print("TV standby")
+                send_to_unity_and_wait(message)
+                ####################################################
+                #####          アバターが睡眠催促       ######
+                ####################################################
+
+                if is_runging_on_rasp:
+                    subprocess.run("echo 'standby 0' | cec-client -s", shell=True, stdout=subprocess.DEVNULL)
+                print("TV standby")
 
 # 状態 wokeup,2,セットしたアラーム時間 日付またぎ(アラーム時間と現在時間を大小比較するため)
 elif current_status == 'wokeup' and times == 2 and current_alarm == 9999:
