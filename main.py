@@ -1,8 +1,5 @@
-import cv2
 import datetime
 import time
-import tempfile
-import numpy as np
 import os
 import subprocess
 import pandas as pd
@@ -10,11 +7,12 @@ import requests
 
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
+is_runging_on_rasp = True # ラズパイで動かす時はTrue，ローカルでテストするときはFalse
 # デモ用 テレビ付けるのに7sかかるため、最初に起動
 # subprocess.run("echo 'on 0' | cec-client -s", shell=True, stdout=subprocess.DEVNULL)
 # print("TV on")
 
-# 作成したモジュール(Todo モジュールファイルへの移動)
+# 作成したモジュール
 from modules import camera            # 写真を撮って保存
 from modules import BrightnessChecker # 部屋の明るさチェック
 from modules import rec               # レコード開始
@@ -25,9 +23,7 @@ from modules.google_calender_api import get_events_today
 
 start = time.time()
 now = datetime.datetime.now() 
-current_time = int(now.strftime("%H%M"))  # 現在時間取得 1713
-is_runging_on_rasp = False # ラズパイで動かす時はTrue，ローカルでテストするときはFalse
-
+current_time = int(now.strftime("%H%M"))  # 現在時間取得 例)1713
 
 def status_csv_write(status, times, alarm, filename='status.csv'):
     # 先頭に追加する行をデータフレームで作成
@@ -54,9 +50,19 @@ def send_to_unity_and_wait(message):
         socket_com.start_client_sendString(message, port=my_config.UNITY_PORT) 
         return socket_com.start_server_getString(port=my_config.RASPBERRYPI_PORT) # サーバー立てて文字取得まで待機
 
-
 # ステータス確認
 current_status, times, current_alarm = status_csv_read()
+
+######################################  DEBUG  ######################################
+# current_status, times, current_alarm, current_time= 'wakeup_standby', 0,  700, 701  # 起床フェーズ (何もしない)
+# current_status, times, current_alarm, current_time= 'wakeup_standby', 1,  705, 706  # まだ寝てる 　
+# current_status, times, current_alarm, current_time= 'wakeup_standby', 6,  730, 731  # まだ寝てる slack投稿フェーズ
+# current_status, times, current_alarm, current_time= 'wokeup'        , 1, 9999, 1000 # 起床蘊蓄も終了(帰宅待機)
+# current_status, times, current_alarm, current_time= 'wokeup'        , 1, 9999, 1700 # 帰宅判断1回目 (部屋明るく)
+# current_status, times, current_alarm, current_time= 'wokeup'        , 2,  700, 1700 # アラームセット完了 (何もしない)
+# current_status, times, current_alarm, current_time= 'wokeup'        , 2,  700, 2350 # 睡眠催促
+# current_status, times, current_alarm, current_time= 'wakeup_standby', 2,  700, 5    # 日付跨ぎ 
+######################################  DEBUG  ######################################
 
 # 状態 wakeup_standby,0,セットしたアラーム時間 就寝中||起床前
 if current_status == 'wakeup_standby' and times == 0 and current_alarm > current_time:
@@ -121,7 +127,7 @@ elif current_status == 'wakeup_standby' and times >= 0 and current_alarm <= curr
         data = get_events_today() # api側はこのdataを使っていない．指定する必要は？
         response = requests.post(url, json=data)
         print("response", response.json()['answer']) 
-        send_to_unity_and_wait(response.json()['answer']) # Todo 今日の予定も？
+        send_to_unity_and_wait(response.json()['answer']) 
         ####################################################
         ##### 　　　Unityから蘊蓄/予定ずんだもん起動      ######
         ####################################################
@@ -149,7 +155,7 @@ elif current_status == 'wokeup' and times == 1 and current_alarm == 9999 and cur
         url = "http://127.0.0.1:8000/api/welcome_back/"
         message = requests.get(url).json()['answer']
         # message = "おかえり、明日は何時に起こせばいいのだ？" # local用
-        
+
         send_to_unity_and_wait(message)
         ####################################################
         #####         Unityから起床時間の質問        ######
@@ -199,7 +205,7 @@ elif current_status == 'wokeup' and times == 2:
                 subprocess.run("echo 'standby 0' | cec-client -s", shell=True, stdout=subprocess.DEVNULL)
             print("TV standby")
 
-# 状態 wokeup,3,セットしたアラーム時間 日付またぎ(アラーム時間と現在時間を大小比較するため)
-elif current_status == 'wokeup' and times == 3 and current_alarm == 9999:
+# 状態 wokeup,2,セットしたアラーム時間 日付またぎ(アラーム時間と現在時間を大小比較するため)
+elif current_status == 'wokeup' and times == 2 and current_alarm == 9999:
     if "0000" <= current_time <= "0010": # 冗長
         status_csv_write('wakeup_standby', 0, current_alarm)

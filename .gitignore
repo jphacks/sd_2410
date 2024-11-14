@@ -1,13 +1,22 @@
+# 環境
 jphacks_env/
 __pycache__/
 *.pyc
 *.env
+venv
+
+# プライバシー
+modules/my_socket/my_config.py
 photo.jpg
-status.csv
 voice.wav
-test_code/
+
+# セキュリティ
 credentials.json
 token.json
+
+# その他
+status.csv
 .vscode
-venv
+test_code/
+cheat_cmd.txt
 Unity/unity_pc_test.py
