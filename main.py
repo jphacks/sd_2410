@@ -4,6 +4,7 @@ import os
 import subprocess
 import pandas as pd
 import requests
+import json
 
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
@@ -53,7 +54,8 @@ def speaker_csv_read(filename='speaker.csv'):
     # それぞれのカラムから値を取得
     speaker_id = first_row['speaker_id'].iloc[0]
     speaker_name = first_row['speaker_name'].iloc[0]
-    return speaker_id, speaker_name
+    speaker_mate = first_row['speaker_mate'].iloc[0]
+    return speaker_id, speaker_name, speaker_mate
 
 def send_to_unity_and_wait(message):
         socket_com.start_client_sendString(message, port=my_config.UNITY_PORT) 
@@ -61,13 +63,19 @@ def send_to_unity_and_wait(message):
 
 # ステータス確認
 current_status, times, current_alarm = status_csv_read()
-speaker_id, speaker_name = speaker_csv_read()
+speaker_id, speaker_name, speaker_mate = speaker_csv_read()
 
 system_prompt = None
 if speaker_name == 'zundamon':
     system_prompt = '語尾にのだをつけて喋って．'
 elif speaker_name == 'joyman':
     system_prompt = 'お父さん口調で喋って'
+
+data = {
+    'system_prompt' : system_prompt,
+    'mate' : speaker_mate
+}
+data_str = json.dumps(data)
 
 ######################################  DEBUG  ######################################
 # current_status, times, current_alarm, current_time= 'wakeup_standby', 0,  700, 701  # 起床フェーズ (何もしない)
