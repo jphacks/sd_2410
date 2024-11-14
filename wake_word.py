@@ -159,18 +159,20 @@ def detect_wake_word():
             print("ウェイクワードが検出されました！")
             # sys.exit(0) # 確認用
 
-            # 音声ファイルを保存して再生(絶対パス)
-            # コピー元ファイルをバイナリで読み込み、コピー先ファイルに書き込む
-            # with open( "sd_2410/first_response.wav", "rb") as src_file:
-            #     data = src_file.read()
-            # with open("C:/Users/renta/Joyman/Assets/Audio/abando.wav", "wb") as dest_file:
-            #     dest_file.write(data)
-            #     # 文字ファイルを保存(絶対パス)
-            # with open("C:/Users/renta/Joyman/Assets/Text/responce.txt", "w",encoding="utf-8") as f:
-            #     f.write("どうしたのだ？")
+            #音声ファイルを保存して再生(絶対パス)
+            #コピー元ファイルをバイナリで読み込み、コピー先ファイルに書き込む
+            with open( "sd_2410/first_response.wav", "rb") as src_file:
+                data = src_file.read()
+            with open("C:/Users/renta/Joyman/Assets/Audio/abando.wav", "wb") as dest_file:
+                dest_file.write(data)
+                # 文字ファイルを保存(絶対パス)
+            with open("C:/Users/renta/Joyman/Assets/Text/responce.txt", "w",encoding="utf-8") as f:
+                f.write("どうしたのだ？")
 
-            remove_str=WAKE_WORD
-            transcription = transcription.replace(remove_str, "")
+            with microphone as source:
+                audio = recognizer.listen(source)  # 再度音声を取得
+            user_prompt = recognizer.recognize_google(audio, language='ja-JP')
+
             user_prompt = transcription
 
             # OpenAIからの応答を取得

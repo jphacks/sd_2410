@@ -6,6 +6,7 @@ from .views.image import image_view
 from .views.search import search
 from .views.send_image import send_image_with_text
 from .views.wake_up import wake_up
+from .views.sleep_remind import sleep_remind
 
 # URL, importした関数名, メモ
 urlpatterns = [
@@ -16,4 +17,5 @@ urlpatterns = [
     path('search/', search, name="search_today"),
     path('send_image/', send_image_with_text, name='send_image'),
     path('wake_up/<int:times>/', wake_up, name='wake_up'),
+    path('sleep_remind/', sleep_remind, name='sleep_remind')
 ]

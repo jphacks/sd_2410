@@ -5,7 +5,8 @@ from modules.my_socket.my_config import SERVER_PC_PORT, SERVER_PC_IP
 # サーバーを立てて、テキスト取得したらサーバー閉じる
 # def start_server_getString(port):
 def start_server_getString(port=SERVER_PC_PORT):
-    server_socket = socket.socket(socket.AF_INET, socket.SO_VM_SOCKETS_BUFFER_MIN_SIZE)
+    # server_socket = socket.socket(socket.AF_INET, socket.SO_VM_SOCKETS_BUFFER_MIN_SIZE)
+    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_socket.bind(("0.0.0.0", port))
     server_socket.listen()
     print("Server started, waiting for connections...")
