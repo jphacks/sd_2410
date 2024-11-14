@@ -6,25 +6,30 @@ import os
 
 # 親ディレクトリをPythonのパスに追加
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
-from sd_2410.Unity.socket_server import getString_socket
+from socket_server import getString_socket
 
 wav_path = "C:/Users/renta/Joyman/Assets/Audio/"
 text_path = "C:/Users/renta/Joyman/Assets/Text/responce.txt"
 
-is_test_with_no_voicevox = True #voicevoxがないPCでテストするか
+is_test_with_no_voicevox = False #voicevoxがないPCでテストするか
 
-# ずんだもんの話者ID
-speaker_id = 3
-#speaker_id = 67
 while 1:
     #ここにLLMからの応答データを入れる
     socket_get_data = getString_socket()
+    print(socket_get_data)
+    num, id, text = socket_get_data.split(":") 
 
-    num = None
-    if socket_get_data[0].isdigit():
-        num, text = socket_get_data.split(":") 
-    else :
-        text = socket_get_data
+    print(f"起こした回数：{num}, id:{id},テキスト：{text}")
+    
+    if id == "1":
+        speaker_id = 3 #ずんだもんの話者ID
+    elif id == "2":
+        speaker_id = 11 #高木の話者ID
+    elif id == "3":
+        speaker_id = 20 #小春の話者ID
+    elif id == "4":
+        speaker_id = 52 #池綿の話者ID
+    else : speaker_id = 3 #ずんだもんの話者ID
     
     if is_test_with_no_voicevox:
         print(text)
