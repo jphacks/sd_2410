@@ -7,6 +7,7 @@ import logging
 
 from langchain_community.utilities import SerpAPIWrapper
 import logging
+import json
 
 # ロギングの設定
 logger = logging.getLogger(__name__)
@@ -20,13 +21,18 @@ client = OpenAI(api_key=OPENAI_API_KEY)
 @api_view(['POST'])
 def wake_up(request, times):
     if request.method == 'POST':
+
+        data = json.loads(request.body)
+        system_prompt = data.get("system_prompt")
+        mate = data.get("mate")
+
         try:
             # OpenAI APIの呼び出し
             completion = client.chat.completions.create(
                     model="gpt-4o-mini",
                     messages=[
-                        {"role": "system", "content": "あなたはお母さんです．あなたは自分の子供を起こしています．あなたには[0,1]の範囲の怒りポイントがあります．怒りポイントが1に近づくほど怒ってください．文字数は50文字程度"},
-                        {"role": "user", "content": f"子供を起こしてください．今のあなたの怒りポイントは{times/6}です．{times}が1より大きい時は応答に「これで起こすのは{times}回目」という旨の情報をつけてください．"}
+                        {"role": "system", "content": f"{system_prompt}．あなたには[0,1]の範囲の怒りポイントがあります．怒りポイントが1に近づくほど怒ってください．"},
+                        {"role": "user", "content": f"{mate}を起こしてください．今のあなたの怒りポイントは{times/6}です．{times}が1より大きい時は応答に「これで起こすのは{times}回目」という旨の情報をつけてください．文字数は50文字程度"}
                     ]
             )
             # OpenAIからのレスポンスを取得

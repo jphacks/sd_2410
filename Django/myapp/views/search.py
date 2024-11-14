@@ -16,22 +16,27 @@ SERP_API_KEY = settings.SERP_API_KEY
 search_tool = SerpAPIWrapper(serpapi_api_key=SERP_API_KEY)
 client = OpenAI(api_key=OPENAI_API_KEY)
 
-@api_view(['GET', 'POST'])
+@api_view(['GET'])
 def search(request):
-    if request.method == 'POST':
+    if request.method == 'GET':
         try:
             # JSONデータをパース
             data = json.loads(request.body)
+            event = data.get('event')
+            mate = data.get('mate')
+            system_prompt = data.get('system_prompt')
+            print(mate)
+            
             response = search_tool.run("今日は何の日？か１つ教えてください。")
-            prompt = f"今日は何の日について教えて：{response}\nそれと今日の予定は以下です：{', '.join(data)}"
+            prompt = f"今日は何の日について教えて：{response}\nそれと今日の予定は以下です：{', '.join(event)}"
 
             try:
                 # OpenAI APIの呼び出し
                 completion = client.chat.completions.create(
                         model="gpt-4o-mini",
                         messages=[
-                            {"role": "system", "content": "あなたはお母さんで、朝息子への挨拶をする。ママみたいな口調で話して"},
-                            {"role": "user", "content": f"以下を基に息子に声をかけて（ため口でお母さんみたいに）。内容は短めで:{prompt}"}
+                            {"role": "system", "content": f"{system_prompt}、朝{mate}への挨拶をする。"},
+                            {"role": "user", "content": f"以下を基に{mate}に声をかけて。内容は短めで:{prompt}"}
                         ]
                 )
                 # OpenAIからのレスポンスを取得
