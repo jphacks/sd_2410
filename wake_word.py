@@ -27,7 +27,7 @@ dotenv.load_dotenv()
 OPEN_AI_API=os.environ.get("OPEN_AI_API")
 openai.api_key = OPEN_AI_API
 
-WAKE_WORD = ["おい", "ずん", "ずんたん", "ずんだ", "こはる", "小春", "たかぎ"] # 任意のウェイクワードに変更可能
+WAKE_WORD = ["おい", "ずん", "ずんたん", "ずんだ", "こはる", "小春", "たかぎ", "高木", "ジョイマン"] # 任意のウェイクワードに変更可能
 
 get_function_description={
     "name":"get_events",

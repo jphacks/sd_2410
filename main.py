@@ -6,6 +6,7 @@ import pandas as pd
 import requests
 import cv2
 import json
+import pandas as pd
 
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
@@ -83,12 +84,12 @@ speaker_data = {
 
 ######################################  DEBUG  ######################################
 current_status, times, current_alarm, current_time= 'wakeup_standby', 0,  700, 701  # 起床フェーズ (何もしない)
-current_status, times, current_alarm, current_time= 'wakeup_standby', 1,  705, 706  # まだ寝てる 　
-current_status, times, current_alarm, current_time= 'wakeup_standby', 5,  730, 731  # まだ寝てる slack投稿フェーズ
-current_status, times, current_alarm, current_time= 'wokeup'        , 1, 9999, 1000 # 起床蘊蓄も終了(帰宅待機)
+# current_status, times, current_alarm, current_time= 'wakeup_standby', 1,  705, 706  # まだ寝てる 　
+# current_status, times, current_alarm, current_time= 'wakeup_standby', 5,  730, 731  # まだ寝てる slack投稿フェーズ
+# current_status, times, current_alarm, current_time= 'wakeup_standby', 1, 1000, 1005 # 起床蘊蓄も終了(帰宅待機)
 current_status, times, current_alarm, current_time= 'wokeup'        , 1, 9999, 1700 # 帰宅判断1回目 (部屋明るく)
-current_status, times, current_alarm, current_time= 'wokeup'        , 2,  700, 1800 # アラームセット完了 (何もしない)
-current_status, times, current_alarm, current_time= 'wokeup'        , 2,  700, 2200 # 睡眠催促
+# current_status, times, current_alarm, current_time= 'wokeup'        , 2,  700, 1800 # アラームセット完了 (何もしない)
+# current_status, times, current_alarm, current_time= 'wokeup'        , 2,  700, 2200 # 睡眠催促
 # current_status, times, current_alarm, current_time= 'wakeup_standby', 2,  700, 5    # 日付跨ぎ 
 
 # send_to_unity_and_wait("リーチ！一発！ツモ！")
@@ -114,7 +115,7 @@ elif current_status == 'wakeup_standby' and times >= 0 and current_alarm <= curr
     except:
         okita = response.json().split(":")[1].strip("}")
     print("\n起きた:1 寝てる:0 →", okita)  # 起きてた：1/寝てた：0
-    okita = "0" # デモ用(無条件で寝てると判断)
+    okita = "1" # デモ用(無条件で寝てると判断)
 
     if(okita == "0"):
         print("まだ寝てると判断")
@@ -189,7 +190,6 @@ elif current_status == 'wokeup' and times == 1 and current_alarm == 9999 and cur
 
         url = "http://127.0.0.1:8000/api/welcome_back/"
         message = requests.post(url, json=speaker_data).json()['answer']
-        # message = "おかえり、明日は何時に起こせばいいのだ？" # local用
 
         send_to_unity_and_wait(message)
         ####################################################
