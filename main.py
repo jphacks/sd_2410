@@ -80,7 +80,6 @@ speaker_data = {
     'system_prompt' : system_prompt,
     'mate' : speaker_mate
 }
-speaker_data_str = json.dumps(speaker_data) # これは消してもいい
 
 ######################################  DEBUG  ######################################
 current_status, times, current_alarm, current_time= 'wakeup_standby', 0,  700, 701  # 起床フェーズ (何もしない)

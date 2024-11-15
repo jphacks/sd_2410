@@ -7,12 +7,18 @@ import dotenv
 import os
 import sys
 from time import sleep
+import pandas as pd
 
 from modules.google_calender_api import get_events, register_event
 from modules.my_socket import socket_com # ソケット通信
 from modules import rec    
 
-def send_to_unity_and_wait(message):
+
+def send_to_unity_and_wait(message, times=-1):
+    df = pd.read_csv('modules/speaker.csv')
+    speaker_id = df['speaker_id'].iloc[0]
+
+    message = f"{times}:{speaker_id}:{message}"
     socket_com.start_client_sendString(message) 
     return socket_com.start_server_getString() # サーバー立てて文字取得まで待機
 
@@ -21,7 +27,7 @@ dotenv.load_dotenv()
 OPEN_AI_API=os.environ.get("OPEN_AI_API")
 openai.api_key = OPEN_AI_API
 
-WAKE_WORD = ["おい", "お", "い"] # 任意のウェイクワードに変更可能
+WAKE_WORD = ["おい", "ずん", "ずんたん", "ずんだ", "こはる", "小春", "たかぎ"] # 任意のウェイクワードに変更可能
 
 get_function_description={
     "name":"get_events",
@@ -164,8 +170,7 @@ def detect_wake_word():
             print("ウェイクワードが検出されました！")
             # sys.exit(0) # 確認用
 
-            socket_com.start_client_sendString("どうしたのだ") # 変更
-            sleep(2)
+            send_to_unity_and_wait("どうしたのだ") # Unityに送信して待機
             rec.recording() # recordingスタート
 
             with sr.AudioFile("modules/voice.wav") as source:

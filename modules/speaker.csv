@@ -1,6 +1,6 @@
-speaker_id,speaker_name,speaker_mate
-1,zundamon,友達
-2,takagi,子供
-3,koharu,彼氏
-4,ikemen,彼女
-5,zundamon,友達
+speaker_id,speaker_name,speaker_mate,system_prompt
+2,Takagi,子供,
+5,Zuntan,友達,
+3,koharu,彼氏,
+1,Zundamon,友達,
+4,Ikemen,彼女,

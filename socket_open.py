@@ -15,7 +15,7 @@ def speaker_change(changed_speaker):
 
 
 # サーバーを立てて、テキスト取得
-def start_server_getString(port=my_config.RASPBERRYPI_PORT):
+def start_server_getString(port=my_config.RASPBERRYPI_avatar_PORT):
   server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
   # ポートの再利用オプションを設定
@@ -35,14 +35,15 @@ def start_server_getString(port=my_config.RASPBERRYPI_PORT):
     # データを受信
     data = client_socket.recv(1024)
     data_decoded = data.decode('utf-8')
-    # print(f"受信したデータ: {data_decoded}")
-
-    # クライアント接続のみを閉じる
-    client_socket.close()
-    print("クライアント接続が終了しました。再度待機します。")
+    print(f"受信したデータ: {data_decoded}")
 
     # 受信データを使用して何か処理したい場合はここで行う
     speaker_change(data_decoded)
+
+    # クライアント接続のみを閉じる
+    client_socket.close()
+    # print("クライアント接続が終了しました。再度待機します。")
+
 
   # このコードではserver_socket.close()を呼ばないため、
   # サーバーは無限ループで開きっぱなしになります。
