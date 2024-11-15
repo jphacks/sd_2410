@@ -30,6 +30,7 @@ def mp3_to_time(request):
             data = json.loads(request.body)
             system_prompt = data.get("system_prompt")
             mate = data.get("mate")
+            user_name = data.get("user_name")
 
             file_path = os.path.join(os.path.dirname(settings.BASE_DIR), "modules", "voice.wav")
 
@@ -48,7 +49,7 @@ def mp3_to_time(request):
             follow_up_response = openai.chat.completions.create(
             model="gpt-4o-mini",
             messages=[
-                {"role": "system", "content":f"{system_prompt}起床時間の登録が完了しました"},
+                {"role": "system", "content":f"{system_prompt}．起床時間の登録が完了しました．{user_name}に応答してください．{user_name}はあなたにとって{mate}です．"},
                 {"role": "user", "content": f"{mate}が" + transcription.text + "と喋りました．応答してください。ただし40文字以内で回答してください。"}
             ]
             )

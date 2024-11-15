@@ -25,14 +25,20 @@ def wake_up(request, times):
         data = json.loads(request.body)
         system_prompt = data.get("system_prompt")
         mate = data.get("mate")
+        user_name = data.get("user_name")
 
         try:
             # OpenAI APIの呼び出し
+
+            warning_prompt = ""
+            if times == 5:
+                warning_prompt = "また，「次起きていなかったら，みんなにまだ寝ていることバラしちゃうよ」という旨を入れて"
+
             completion = client.chat.completions.create(
                     model="gpt-4o-mini",
                     messages=[
                         {"role": "system", "content": f"{system_prompt}．あなたには[0,1]の範囲の怒りポイントがあります．怒りポイントが1に近づくほど怒ってください．"},
-                        {"role": "user", "content": f"{mate}を起こしてください．今のあなたの怒りポイントは{times/6}です．{times}が1より大きい時は応答に「これで起こすのは{times}回目」という旨の情報をつけてください．文字数は50文字程度"}
+                        {"role": "user", "content": f"{user_name}を起こしてください．{user_name}はあなたにとって{mate}です．今のあなたの怒りポイントは{times/6}です．{times}が1より大きい時は応答に「これで起こすのは{times}回目」という旨の情報をつけてください．{warning_prompt}．文字数は80文字程度"}
                     ]
             )
             # OpenAIからのレスポンスを取得

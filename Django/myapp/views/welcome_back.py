@@ -26,13 +26,14 @@ def welcome_back(request):
         data = json.loads(request.body)
         system_prompt = data.get("system_prompt")
         mate = data.get("mate")
+        user_name = data.get("user_name")
 
         # OpenAI APIの呼び出し
         completion = client.chat.completions.create(
                 model="gpt-4o-mini",
                 messages=[
-                    {"role": "system", "content": f"{system_prompt}．{mate}はすでに働いているかもしれません．"},
-                    {"role": "user", "content": f"{mate}が家に帰ってきました．「おかえり」のような短い言葉と，明日は何時に起きるのか聞いてください．50文字で返答して．"}
+                    {"role": "system", "content": f"{system_prompt}．{user_name}が家に帰ってきました．{user_name}はあなたにとって{mate}です．"},
+                    {"role": "user", "content": f"「おかえり」のような短い言葉と，明日は何時に起きるのか聞いてください．50文字で返答して．"}
                 ]
         )
         # OpenAIからのレスポンスを取得
