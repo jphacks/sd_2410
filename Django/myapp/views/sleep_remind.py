@@ -19,6 +19,7 @@ def sleep_remind(request):
     mate = data.get('mate')
     alarm_time = data.get('alarm_time')
     sleep_duration = data.get('sleep_duration')
+    user_name = data.get('user_name')
 
     alarm_h = alarm_time[:2]
     alarm_m = alarm_time[2:]
@@ -28,8 +29,8 @@ def sleep_remind(request):
         completion = client.chat.completions.create(
                 model="gpt-4o",
                 messages=[
-                    {"role": "system", "content": f"{system_prompt}．明日の朝起きられるように{mate}に睡眠の催促をしています，応答には80文字程度で答えてください．"},
-                    {"role": "user", "content": f"{mate}に睡眠の催促をしてください．（例：明日{alarm_h}時{alarm_m}分に起きるには，そろそろ寝たほうがいい．今眠ると{sleep_duration}時間も眠れる）また，{sleep_duration}時間眠ることによるメリットも付け加えてください．"}
+                    {"role": "system", "content": f"{system_prompt}．明日の朝起きられるように{user_name}に睡眠の催促をしています．{user_name}はあなたにとって{mate}です．応答には80文字程度で答えてください．"},
+                    {"role": "user", "content": f"{user_name}に睡眠の催促をしてください．（例：明日{alarm_h}時{alarm_m}分に起きるには，そろそろ寝たほうがいい．今眠ると{sleep_duration}時間も眠れる）また，{sleep_duration}時間眠ることによるメリットも付け加えてください．"}
                 ]
         )
         # OpenAIからのレスポンスを取得

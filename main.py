@@ -55,6 +55,7 @@ def speaker_csv_read(filename='modules/speaker.csv'):
     speaker_id = first_row['speaker_id'].iloc[0]
     speaker_name = first_row['speaker_name'].iloc[0]
     speaker_mate = first_row['speaker_mate'].iloc[0]
+    system_prompt = first_row['system_prompt'].iloc[0]
     return speaker_id, speaker_name, speaker_mate
 
 def send_to_unity_and_wait(message, times=-1):
@@ -64,21 +65,23 @@ def send_to_unity_and_wait(message, times=-1):
 
 # ステータス確認
 current_status, times, current_alarm = status_csv_read()
-speaker_id, speaker_name, speaker_mate = speaker_csv_read()
+speaker_id, speaker_name, speaker_mate, system_prompt = speaker_csv_read()
+user_name = "はーさか"
 
-system_prompt = None
-if speaker_name == 'zundamon':
-    system_prompt = '語尾に「のだ」をつけて喋って'
-elif speaker_name == 'joyman':
-    system_prompt = 'お父さん口調で喋って'
-elif speaker_name == 'koharu':
-    system_prompt = '女子高生の口調で喋って'
-elif speaker_name == 'ikemen':
-    system_prompt = 'イケメン風の口調でしゃべって'
+# system_prompt = None
+# if speaker_name == 'zundamon':
+#     system_prompt = '語尾に「のだ」をつけて喋って'
+# elif speaker_name == 'joyman':
+#     system_prompt = 'お父さん口調で喋って'
+# elif speaker_name == 'koharu':
+#     system_prompt = '女子高生の口調で喋って'
+# elif speaker_name == 'ikemen':
+#     system_prompt = 'イケメン風の口調でしゃべって'
 
 speaker_data = {
     'system_prompt' : system_prompt,
-    'mate' : speaker_mate
+    'mate' : speaker_mate,
+    'user_name': user_name
 }
 
 ######################################  DEBUG  ######################################

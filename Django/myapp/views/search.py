@@ -25,6 +25,7 @@ def search(request):
             event = data.get('event')
             mate = data.get('mate')
             system_prompt = data.get('system_prompt')
+            user_name = data.get('user_name')
             print(mate)
             
             response = search_tool.run("今日は何の日？か１つ教えてください。")
@@ -35,8 +36,8 @@ def search(request):
                 completion = client.chat.completions.create(
                         model="gpt-4o-mini",
                         messages=[
-                            {"role": "system", "content": f"{system_prompt}、朝{mate}への挨拶をする。"},
-                            {"role": "user", "content": f"以下を基に{mate}に声をかけて。内容は短めで:{prompt}"}
+                            {"role": "system", "content": f"{system_prompt}、朝{user_name}への挨拶をする。{user_name}はあなたにとって{mate}です．"},
+                            {"role": "user", "content": f"以下を基に{user_name}に声をかけて。内容は短めで:{prompt}"}
                         ]
                 )
                 # OpenAIからのレスポンスを取得
