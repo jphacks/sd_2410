@@ -19,6 +19,7 @@ def send_image_with_text(request):
     channel_id = "C07QE91Q6U9"
     message_text = "この人はまだ寝ています。"
     image_path = os.path.join(os.path.dirname(settings.BASE_DIR), "modules", "photo.jpg")
+    # image_path = os.path.join(os.path.dirname(settings.BASE_DIR), "photo.jpg")
 
 
     try:

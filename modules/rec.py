@@ -8,7 +8,7 @@ def recording(
     format=pyaudio.paInt16,
     channels=1,
     rate=44100,     # sampling rate1
-    chunk=1024,
+    chunk=4096,
     silence_threshold=500,  # volume threshold
     silence_duration=2      # silence duration threshold
 ):
