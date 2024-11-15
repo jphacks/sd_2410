@@ -37,8 +37,8 @@ def wake_up(request, times):
             completion = client.chat.completions.create(
                     model="gpt-4o-mini",
                     messages=[
-                        {"role": "system", "content": f"{system_prompt}．あなたには[0,1]の範囲の怒りポイントがあります．怒りポイントが1に近づくほど怒ってください．"},
-                        {"role": "user", "content": f"{user_name}を起こしてください．{user_name}はあなたにとって{mate}です．今のあなたの怒りポイントは{times/6}です．{times}が2より大きい時は応答に「これで起こすのは{times}回目」という旨の情報をつけてください．{warning_prompt}．文字数は80文字程度"}
+                        {"role": "system", "content": f"{system_prompt}．あなたには[0,1]の範囲の怒りポイントがあります．怒りポイントが1に近づくほど怒ってください．「怒りポイント」という言葉は使わないでください．"},
+                        {"role": "user", "content": f"{user_name}を起こしてください．{user_name}はあなたにとって{mate}です．今のあなたの怒りポイントは{times/6}です．{times}が1より大きい時は応答に「これで起こすのは{times}回目」という旨の情報をつけてください．{warning_prompt}．文字数は80文字程度"}
                     ]
             )
             # OpenAIからのレスポンスを取得

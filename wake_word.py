@@ -14,13 +14,24 @@ from modules.my_socket import socket_com # ソケット通信
 from modules import rec    
 
 
-def send_to_unity_and_wait(message, times=-1):
+def send_to_unity_and_wait(message, speaker_id=-1, times=-1):
     df = pd.read_csv('modules/speaker.csv')
-    speaker_id = df['speaker_id'].iloc[0]
+    # speaker_id = df['speaker_id'].iloc[0]
 
     message = f"{times}:{speaker_id}:{message}"
     socket_com.start_client_sendString(message) 
     return socket_com.start_server_getString() # サーバー立てて文字取得まで待機
+
+def speaker_csv_read(filename='modules/speaker.csv'):
+    # CSVファイルの最初の1行だけを読み込む
+    first_row = pd.read_csv(filename, nrows=1)
+    
+    # それぞれのカラムから値を取得
+    speaker_id = first_row['speaker_id'].iloc[0]
+    speaker_name = first_row['speaker_name'].iloc[0]
+    speaker_mate = first_row['speaker_mate'].iloc[0]
+    system_prompt = first_row['system_prompt'].iloc[0]
+    return speaker_id, speaker_name, speaker_mate, system_prompt
 
 # 環境変数設定
 dotenv.load_dotenv()
@@ -71,13 +82,13 @@ register_function_description={
     }
 }
 
-def get_openai_response(prompt, model="gpt-4o-mini"):
+def get_openai_response(user_prompt, system_prompt, model="gpt-4o-mini"):
     try:
         response = openai.chat.completions.create(
             model=model,
             messages=[
-                {"role": "system", "content":"生意気な口調で「なのだ」口調でしゃべって。100字以内"},
-                {"role": "user", "content": prompt}
+                {"role": "system", "content":f"{system_prompt}。100字以内"},
+                {"role": "user", "content": user_prompt}
                 ],
             functions=[get_function_description, register_function_description],
             function_call="auto"
@@ -95,8 +106,8 @@ def get_openai_response(prompt, model="gpt-4o-mini"):
             follow_up_response = openai.chat.completions.create(
                 model="gpt-4o-mini",
                 messages=[
-                    {"role": "system", "content":"生意気な口調で「なのだ」口調でしゃべって。カレンダーへのリンクは応答に含めないでください。100字以内"},
-                    {"role": "user", "content": prompt},
+                    {"role": "system", "content":f"{system_prompt}。カレンダーへのリンクは応答に含めないでください。100字以内"},
+                    {"role": "user", "content": user_prompt},
                     message,
                     {"role": "function", "name": "get_event", "content":json.dumps({"schedule": result})}
                 ]
@@ -112,8 +123,8 @@ def get_openai_response(prompt, model="gpt-4o-mini"):
             follow_up_response = openai.chat.completions.create(
                 model="gpt-4o-mini",
                 messages=[
-                    {"role": "system", "content":"生意気な口調で「なのだ」口調でしゃべって。100字以内"},
-                    {"role": "user", "content": prompt},
+                    {"role": "system", "content":f"{system_prompt}。100字以内"},
+                    {"role": "user", "content": user_prompt},
                     message,
                     {"role": "function", "name": "get_event", "content":json.dumps({"schedule": result})}
                 ]
@@ -158,6 +169,18 @@ def detect_wake_word():
     
     print("音声を取得しています...")
 
+    speaker_id, speaker_name, speaker_name, system_prompt = speaker_csv_read()
+    wake_word_responce = ""
+    if speaker_name == "Zundamon" and speaker_name == "Zundan":
+        wake_word_responce = "どうしたのだ？"
+    elif speaker_name == "Takagi":
+        wake_word_responce = "どうした？"
+    elif speaker_name == "koharu":
+        wake_word_responce = "どうしたの？"
+    elif speaker_name == "Ikemen":
+        wake_word_responce = "どうした？"
+
+
     with microphone as source:
         audio = recognizer.listen(source)  # 音声を取得
     try:
@@ -170,7 +193,7 @@ def detect_wake_word():
             print("ウェイクワードが検出されました！")
             # sys.exit(0) # 確認用
 
-            send_to_unity_and_wait("どうしたのだ") # Unityに送信して待機
+            send_to_unity_and_wait(wake_word_responce, tspeaker_id=speaker_id) # Unityに送信して待機
             rec.recording() # recordingスタート
 
             with sr.AudioFile("modules/voice.wav") as source:
@@ -179,7 +202,7 @@ def detect_wake_word():
             print(f"Recognized text: {user_prompt}")
 
             # OpenAIからの応答を取得
-            response = get_openai_response(user_prompt)
+            response = get_openai_response(user_prompt, system_prompt=system_prompt)
             if response:
                 send_to_unity_and_wait(response)
             else:
