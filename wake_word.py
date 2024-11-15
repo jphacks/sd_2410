@@ -169,8 +169,8 @@ def detect_wake_word():
     
     print("音声を取得しています...")
 
-    speaker_id, speaker_name, speaker_name, system_prompt = speaker_csv_read()
-    wake_word_responce = ""
+    speaker_id, speaker_name, speaker_mate, system_prompt = speaker_csv_read()
+    wake_word_responce = "どうしたんだ？"
     if speaker_name == "Zundamon" and speaker_name == "Zundan":
         wake_word_responce = "どうしたのだ？"
     elif speaker_name == "Takagi":
@@ -193,7 +193,7 @@ def detect_wake_word():
             print("ウェイクワードが検出されました！")
             # sys.exit(0) # 確認用
 
-            send_to_unity_and_wait(wake_word_responce, tspeaker_id=speaker_id) # Unityに送信して待機
+            send_to_unity_and_wait(wake_word_responce, speaker_id=speaker_id) # Unityに送信して待機
             rec.recording() # recordingスタート
 
             with sr.AudioFile("modules/voice.wav") as source:
