@@ -9,7 +9,7 @@ import json
 
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
-is_runging_on_rasp = True # ラズパイで動かす時はTrue，ローカルでテストするときはFalse
+is_runging_on_rasp = False # ラズパイで動かす時はTrue，ローカルでテストするときはFalse
 # デモ用 テレビ付けるのに7sかかるため、最初に起動
 # subprocess.run("echo 'on 0' | cec-client -s", shell=True, stdout=subprocess.DEVNULL)
 # print("TV on")
@@ -56,7 +56,7 @@ def speaker_csv_read(filename='modules/speaker.csv'):
     speaker_name = first_row['speaker_name'].iloc[0]
     speaker_mate = first_row['speaker_mate'].iloc[0]
     system_prompt = first_row['system_prompt'].iloc[0]
-    return speaker_id, speaker_name, speaker_mate
+    return speaker_id, speaker_name, speaker_mate, system_prompt
 
 def send_to_unity_and_wait(message, times=-1):
     message = f"{times}:{speaker_id}:{message}"
