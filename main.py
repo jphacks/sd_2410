@@ -12,8 +12,8 @@ os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 is_runging_on_rasp = True # ラズパイで動かす時はTrue，ローカルでテストするときはFalse
 # デモ用 テレビ付けるのに7sかかるため、最初に起動
-# subprocess.run("echo 'on 0' | cec-client -s", shell=True, stdout=subprocess.DEVNULL)
-# print("TV on")
+subprocess.run("echo 'on 0' | cec-client -s", shell=True, stdout=subprocess.DEVNULL)
+print("TV on")
 
 # 作成したモジュール
 from modules import camera                # 写真を撮って保存
@@ -77,13 +77,17 @@ speaker_data = {
 
 ######################################  DEBUG  ######################################
 # 111行目 okita も調整
-current_status, times, current_alarm, current_time= 'wakeup_standby', 0,  700, 701  # 起床フェーズ (何もしない)
-current_status, times, current_alarm, current_time= 'wakeup_standby', 1,  705, 706  # まだ寝てる 　
-# current_status, times, current_alarm, current_time= 'wakeup_standby', 5,  730, 731  # まだ寝てる slack投稿フェーズ
-# current_status, times, current_alarm, current_time= 'wakeup_standby', 1, 1000, 1005 # 起床蘊蓄も終了(帰宅待機)
+current_status, times, current_alarm, current_time= 'wakeup_standby', 0,  700, 701  # 起床1回目
+current_status, times, current_alarm, current_time= 'wakeup_standby', 1,  705, 706  # 起床2回目
+current_status, times, current_alarm, current_time= 'wakeup_standby', 2,  710, 711  # 起床3回目
+current_status, times, current_alarm, current_time= 'wakeup_standby', 3,  715, 716  # 起床4回目
+current_status, times, current_alarm, current_time= 'wakeup_standby', 4,  720, 721  # 起床5回目
+current_status, times, current_alarm, current_time= 'wakeup_standby', 5,  725, 726  # 起床6回目 slack投稿フェーズ
+current_status, times, current_alarm, current_time= 'wakeup_standby', 6,  730, 731  # 起床7回目 
+current_status, times, current_alarm, current_time= 'wakeup_standby', 6, 1000, 1005 # 起床蘊蓄も終了(帰宅待機)
 # current_status, times, current_alarm, current_time= 'wokeup'        , 1, 9999, 1700 # 帰宅判断1回目 (部屋明るく)
-# current_status, times, current_alarm, current_time= 'wokeup'        , 2,  700, 1800 # アラームセット完了 (何もしない)
-# current_status, times, current_alarm, current_time= 'wokeup'        , 2,  700, 2200 # 睡眠催促
+# current_status, times, current_alarm, current_time= 'wokeup'        , 2,  700, 2200 # 睡眠催促 9時間前
+# current_status, times, current_alarm, current_time= 'wokeup'        , 2,  700, 2300 # 睡眠催促 7時間前
 # current_status, times, current_alarm, current_time= 'wakeup_standby', 2,  700, 5    # 日付跨ぎ 
 
 # send_to_unity_and_wait("リーチ！一発！ツモ！")
@@ -109,7 +113,7 @@ elif current_status == 'wakeup_standby' and times >= 0 and current_alarm <= curr
     except:
         okita = response.json().split(":")[1].strip("}")
     print("\n起きた:1 寝てる:0 →", okita)  # 起きてた：1/寝てた：0
-    # okita = "1" # デモ用(無条件で寝てると判断)
+    okita = "1" # デモ用
 
     if(okita == "0"):
         print("まだ寝てると判断")

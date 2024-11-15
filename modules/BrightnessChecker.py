@@ -4,7 +4,7 @@ from matplotlib import pyplot as plt
 
 
 def  homeChecker():
-    file = 'photo.jpg'
+    file = 'modules/photo.jpg'
 
     #read image file and convert to HSV
     img = cv2.imread(str(file))
