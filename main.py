@@ -80,7 +80,7 @@ speaker_data = {
     'system_prompt' : system_prompt,
     'mate' : speaker_mate
 }
-speaker_data_str = json.dumps(speaker_data)
+speaker_data_str = json.dumps(speaker_data) # これは消してもいい
 
 ######################################  DEBUG  ######################################
 current_status, times, current_alarm, current_time= 'wakeup_standby', 0,  700, 701  # 起床フェーズ (何もしない)
@@ -128,7 +128,7 @@ elif current_status == 'wakeup_standby' and times >= 0 and current_alarm <= curr
 
         # -スヌーズ機能用-----------------------
         url = f"http://127.0.0.1:8000/api/wake_up/{times}/"
-        response = requests.post(url, data=speaker_data_str)
+        response = requests.post(url, json=speaker_data)
 
         wake_up_string = response.json().get('answer')
         print("wake_up_string", wake_up_string)
@@ -156,13 +156,12 @@ elif current_status == 'wakeup_standby' and times >= 0 and current_alarm <= curr
             subprocess.run("echo 'on 0' | cec-client -s", shell=True, stdout=subprocess.DEVNULL)
         print("TV on")
 
-        url = "http://127.0.0.1:8000/api/search/?"
+        url = "http://127.0.0.1:8000/api/search/"
         event_data = get_events_today() # api側はこのdataを使っていない．指定する必要は？
-        speaker_data['event'] = "".join(event_data)
+        speaker_event_data = speaker_data
+        speaker_event_data['event'] = "、".join(event_data)
 
-        print(speaker_data)
-        
-        response = requests.post(url, json=json.dumps(speaker_data))
+        response = requests.post(url, json=speaker_event_data)
         print("response", response.json()['answer']) 
         send_to_unity_and_wait(response.json()['answer']) 
         ####################################################
@@ -190,7 +189,7 @@ elif current_status == 'wokeup' and times == 1 and current_alarm == 9999 and cur
         print("TV on")
 
         url = "http://127.0.0.1:8000/api/welcome_back/"
-        message = requests.post(url, data=speaker_data_str).json()['answer']
+        message = requests.post(url, json=speaker_data).json()['answer']
         # message = "おかえり、明日は何時に起こせばいいのだ？" # local用
 
         send_to_unity_and_wait(message)
@@ -200,7 +199,7 @@ elif current_status == 'wokeup' and times == 1 and current_alarm == 9999 and cur
 
         rec.recording()                     # recordingスタート
         url = "http://127.0.0.1:8000/api/mp3_openai/"
-        response = requests.post(url, data=speaker_data_str)
+        response = requests.post(url, json=speaker_data)
         
         set_alarm = int(response.json()['time']) # 起床時間
         status_csv_write('wokeup', 2, set_alarm)
@@ -231,8 +230,11 @@ elif current_status == 'wokeup' and times == 2:
                     subprocess.run("echo 'on 0' | cec-client -s", shell=True, stdout=subprocess.DEVNULL)
                 print("TV on")
 
-            url = f"http://127.0.0.1:8000/api/sleep_remind/?alarm_time={alarm_time_str}&sleep_duration={sleep_duration}"
-            response = requests.post(url, data=speaker_data_str)
+            url = f"http://127.0.0.1:8000/api/sleep_remind/"
+            speaker_sleep_remind_data = speaker_data
+            speaker_sleep_remind_data['alarm_time'] = alarm_time_str
+            speaker_sleep_remind_data['sleep_duration'] = sleep_duration
+            response = requests.post(url, json=speaker_sleep_remind_data)
             message = response.json()['answer']
             print(message)
             send_to_unity_and_wait(message)

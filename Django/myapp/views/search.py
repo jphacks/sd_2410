@@ -16,9 +16,9 @@ SERP_API_KEY = settings.SERP_API_KEY
 search_tool = SerpAPIWrapper(serpapi_api_key=SERP_API_KEY)
 client = OpenAI(api_key=OPENAI_API_KEY)
 
-@api_view(['GET'])
+@api_view(['POST'])
 def search(request):
-    if request.method == 'GET':
+    if request.method == 'POST':
         try:
             # JSONデータをパース
             data = json.loads(request.body)

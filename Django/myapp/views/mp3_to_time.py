@@ -27,7 +27,7 @@ description_message = {
 def mp3_to_time(request):
     if request.method == 'POST':
         try:
-            data = json.load(request.body)
+            data = json.loads(request.body)
             system_prompt = data.get("system_prompt")
             mate = data.get("mate")
 
