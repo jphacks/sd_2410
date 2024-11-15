@@ -10,7 +10,7 @@ import pandas as pd
 
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
-is_runging_on_rasp = False # ラズパイで動かす時はTrue，ローカルでテストするときはFalse
+is_runging_on_rasp = True # ラズパイで動かす時はTrue，ローカルでテストするときはFalse
 # デモ用 テレビ付けるのに7sかかるため、最初に起動
 # subprocess.run("echo 'on 0' | cec-client -s", shell=True, stdout=subprocess.DEVNULL)
 # print("TV on")
@@ -67,17 +67,7 @@ def send_to_unity_and_wait(message, times=-1):
 # ステータス確認
 current_status, times, current_alarm = status_csv_read()
 speaker_id, speaker_name, speaker_mate, system_prompt = speaker_csv_read()
-user_name = "はーさか"
-
-# system_prompt = None
-# if speaker_name == 'zundamon':
-#     system_prompt = '語尾に「のだ」をつけて喋って'
-# elif speaker_name == 'joyman':
-#     system_prompt = 'お父さん口調で喋って'
-# elif speaker_name == 'koharu':
-#     system_prompt = '女子高生の口調で喋って'
-# elif speaker_name == 'ikemen':
-#     system_prompt = 'イケメン風の口調でしゃべって'
+user_name = "ケニー"
 
 speaker_data = {
     'system_prompt' : system_prompt,
@@ -86,11 +76,12 @@ speaker_data = {
 }
 
 ######################################  DEBUG  ######################################
+# 111行目 okita も調整
 current_status, times, current_alarm, current_time= 'wakeup_standby', 0,  700, 701  # 起床フェーズ (何もしない)
-# current_status, times, current_alarm, current_time= 'wakeup_standby', 1,  705, 706  # まだ寝てる 　
+current_status, times, current_alarm, current_time= 'wakeup_standby', 1,  705, 706  # まだ寝てる 　
 # current_status, times, current_alarm, current_time= 'wakeup_standby', 5,  730, 731  # まだ寝てる slack投稿フェーズ
 # current_status, times, current_alarm, current_time= 'wakeup_standby', 1, 1000, 1005 # 起床蘊蓄も終了(帰宅待機)
-current_status, times, current_alarm, current_time= 'wokeup'        , 1, 9999, 1700 # 帰宅判断1回目 (部屋明るく)
+# current_status, times, current_alarm, current_time= 'wokeup'        , 1, 9999, 1700 # 帰宅判断1回目 (部屋明るく)
 # current_status, times, current_alarm, current_time= 'wokeup'        , 2,  700, 1800 # アラームセット完了 (何もしない)
 # current_status, times, current_alarm, current_time= 'wokeup'        , 2,  700, 2200 # 睡眠催促
 # current_status, times, current_alarm, current_time= 'wakeup_standby', 2,  700, 5    # 日付跨ぎ 
@@ -118,7 +109,7 @@ elif current_status == 'wakeup_standby' and times >= 0 and current_alarm <= curr
     except:
         okita = response.json().split(":")[1].strip("}")
     print("\n起きた:1 寝てる:0 →", okita)  # 起きてた：1/寝てた：0
-    okita = "1" # デモ用(無条件で寝てると判断)
+    # okita = "1" # デモ用(無条件で寝てると判断)
 
     if(okita == "0"):
         print("まだ寝てると判断")
