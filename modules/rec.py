@@ -9,7 +9,7 @@ def recording(
     channels=1,
     rate=44100,     # sampling rate1
     chunk=4096,
-    silence_threshold=500,  # volume threshold
+    silence_threshold=1000,  # volume threshold
     silence_duration=2      # silence duration threshold
 ):
     audio = pyaudio.PyAudio()

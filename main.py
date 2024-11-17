@@ -113,6 +113,7 @@ elif current_status == 'wakeup_standby' and times >= 0 and current_alarm <= curr
         okita = response.json().split(":")[1].strip("}")
     print("\n起きた:1 寝てる:0 →", okita)  # 起きてた：1/寝てた：0
     okita = "1" # デモ用
+    okita = "0" # 寝てる
 
     if(okita == "0"):
         print("まだ寝てると判断")

@@ -23,3 +23,6 @@ Unity/unity_pc_test.py
 test.py
 crontab.log
 main_demo.py
+main_pitch.py
+modules/status_demo.csv
+modules/status_pitch.csv

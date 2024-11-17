@@ -204,7 +204,7 @@ def detect_wake_word():
             # OpenAIからの応答を取得
             response = get_openai_response(user_prompt, system_prompt=system_prompt)
             if response:
-                send_to_unity_and_wait(response)
+                send_to_unity_and_wait(response, speaker_id=speaker_id)
             else:
                 print("応答を取得できませんでした。")
             return True
